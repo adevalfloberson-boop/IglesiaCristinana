@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iglesia Cristiana Palabra Viva — Sistema de Gestión</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px}
+body{background:#f8fafc;color:#0f172a;transition:background .3s,color .3s}
+body.dark{background:#020617;color:#f1f5f9}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+body.dark ::-webkit-scrollbar-thumb{background:#334155}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:240px;background:#fff;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;transition:width .3s;z-index:30;overflow:hidden}
+body.dark .sidebar{background:#0f172a;border-color:#1e293b}
+.sidebar.collapsed{width:68px}
+.sidebar-logo{height:60px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid #e2e8f0;overflow:hidden;white-space:nowrap}
+body.dark .sidebar-logo{border-color:#1e293b}
+.logo-icon{width:34px;height:34px;background:#4f46e5;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0}
+.logo-text{font-weight:700;font-size:14px;overflow:hidden;transition:opacity .3s,width .3s;width:160px}
+.sidebar.collapsed .logo-text{opacity:0;width:0}
+.logo-text span{color:#4f46e5}
+.sidebar-toggle{margin-left:auto;background:none;border:none;cursor:pointer;color:#94a3b8;padding:4px;border-radius:6px;flex-shrink:0;font-size:13px}
+.sidebar-toggle:hover{background:#f1f5f9}
+body.dark .sidebar-toggle:hover{background:#1e293b}
+nav{flex:1;padding:10px 8px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;cursor:pointer;border:none;background:none;color:#64748b;font-size:13px;font-weight:500;text-align:left;width:100%;transition:all .15s;white-space:nowrap;overflow:hidden}
+body.dark .nav-item{color:#94a3b8}
+.nav-item:hover{background:#f8fafc;color:#1e293b}
+body.dark .nav-item:hover{background:#1e293b;color:#f1f5f9}
+.nav-item.active{background:#eef2ff;color:#4f46e5}
+body.dark .nav-item.active{background:#1e1b4b;color:#818cf8}
+.nav-icon{font-size:17px;flex-shrink:0;width:20px;text-align:center}
+.nav-label{transition:opacity .3s,width .3s;overflow:hidden}
+.sidebar.collapsed .nav-label{opacity:0;width:0}
+.sidebar-footer{padding:10px 8px;border-top:1px solid #e2e8f0;display:flex;flex-direction:column;gap:6px}
+body.dark .sidebar-footer{border-color:#1e293b}
+.user-card{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#f8fafc;border-radius:12px;overflow:hidden}
+body.dark .user-card{background:#1e293b}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:#4f46e5;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.user-info{overflow:hidden;transition:opacity .3s,width .3s;white-space:nowrap}
+.sidebar.collapsed .user-info{opacity:0;width:0}
+.user-name{font-size:12px;font-weight:600}
+.user-role{font-size:10px;color:#94a3b8}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:60px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:20;flex-shrink:0}
+body.dark .topbar{background:#0f172a;border-color:#1e293b}
+.topbar-title{font-size:18px;font-weight:700}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{background:none;border:none;cursor:pointer;padding:7px;border-radius:10px;color:#64748b;position:relative;display:flex;align-items:center;justify-content:center;font-size:18px}
+.icon-btn:hover{background:#f1f5f9}
+body.dark .icon-btn:hover{background:#1e293b}
+body.dark .icon-btn{color:#94a3b8}
+.badge-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:#ef4444;border-radius:50%}
+.content{flex:1;overflow-y:auto;padding:20px 24px}
+
+/* ── LOGIN ── */
+.login-wrap{display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(135deg,#eef2ff 0%,#f0fdf4 100%)}
+body.dark .login-wrap{background:linear-gradient(135deg,#1e1b4b 0%,#0f172a 100%)}
+.login-card{background:#fff;border-radius:20px;padding:36px;width:380px;box-shadow:0 20px 60px rgba(0,0,0,.08)}
+body.dark .login-card{background:#0f172a;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.login-logo{text-align:center;margin-bottom:24px}
+.login-logo .logo-circle{width:56px;height:56px;background:#4f46e5;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:26px;margin-bottom:12px}
+.login-logo h1{font-size:18px;font-weight:700;line-height:1.3}
+.login-logo p{font-size:12px;color:#94a3b8;margin-top:4px}
+
+/* ── FORMS ── */
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;font-weight:700;color:#64748b;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.form-input{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#0f172a;transition:border .2s;outline:none}
+body.dark .form-input{background:#1e293b;border-color:#334155;color:#f1f5f9}
+.form-input:focus{border-color:#4f46e5}
+textarea.form-input{resize:vertical}
+
+/* ── BUTTONS ── */
+.btn-primary{width:100%;padding:11px;background:#4f46e5;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .2s;font-family:inherit}
+.btn-primary:hover{opacity:.9}
+.btn-sm{padding:6px 12px;font-size:11px;font-weight:600;border-radius:8px;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
+.btn-outline{background:none;border:1.5px solid #e2e8f0;color:#64748b}
+.btn-outline:hover{background:#f8fafc;color:#1e293b}
+body.dark .btn-outline{border-color:#334155;color:#94a3b8}
+body.dark .btn-outline:hover{background:#1e293b;color:#f1f5f9}
+.action-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#4f46e5;color:#fff;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .2s;font-family:inherit}
+.action-btn:hover{opacity:.9}
+.action-btn-sm{padding:5px 10px;font-size:11px;border-radius:7px}
+.action-btn-danger{background:#ef4444}
+.action-btn-amber{background:#f59e0b}
+
+/* ── CARDS ── */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px}
+body.dark .card{background:#0f172a;border-color:#1e293b}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px}
+.stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px;position:relative;overflow:hidden}
+body.dark .stat-card{background:#0f172a;border-color:#1e293b}
+.stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#94a3b8;margin-bottom:6px}
+.stat-value{font-size:28px;font-weight:700;line-height:1}
+.stat-sub{font-size:11px;margin-top:8px;color:#10b981;font-weight:600;display:flex;align-items:center;gap:4px}
+.stat-sub.neutral{color:#94a3b8}
+.stat-icon{position:absolute;top:16px;right:16px;width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#f8fafc;color:#64748b;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:10px 14px;text-align:left;border-bottom:1px solid #e2e8f0}
+body.dark th{background:#1e293b;border-color:#334155;color:#94a3b8}
+td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:#374151;vertical-align:middle}
+body.dark td{border-color:#1e293b;color:#cbd5e1}
+tr:hover td{background:#fafafa}
+body.dark tr:hover td{background:#1e293b}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.badge-green{background:#dcfce7;color:#166534}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-amber{background:#fef3c7;color:#92400e}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-purple{background:#ede9fe;color:#5b21b6}
+.badge-gray{background:#f1f5f9;color:#64748b}
+body.dark .badge-green{background:#14532d;color:#86efac}
+body.dark .badge-blue{background:#1e3a5f;color:#93c5fd}
+body.dark .badge-amber{background:#451a03;color:#fcd34d}
+body.dark .badge-red{background:#450a0a;color:#fca5a5}
+body.dark .badge-purple{background:#2e1065;color:#c4b5fd}
+body.dark .badge-gray{background:#1e293b;color:#94a3b8}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:20px;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+body.dark .modal{background:#0f172a}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-title{font-size:16px;font-weight:700}
+.close-btn{background:none;border:none;cursor:pointer;color:#94a3b8;font-size:20px;line-height:1;padding:4px}
+.close-btn:hover{color:#ef4444}
+
+/* ── NOTIFICATIONS ── */
+.notif-container{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px}
+.notif{padding:12px 16px;border-radius:12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:10px;max-width:320px;animation:slideIn .3s ease;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.notif-success{background:#10b981;color:#fff}
+.notif-error{background:#ef4444;color:#fff}
+.notif-info{background:#3b82f6;color:#fff}
+
+/* ── LAYOUT HELPERS ── */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.search-input{padding:8px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;color:#0f172a;outline:none;width:240px}
+body.dark .search-input{background:#1e293b;border-color:#334155;color:#f1f5f9}
+.search-input:focus{border-color:#4f46e5}
+select.form-select{padding:8px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:12px;font-family:inherit;background:#fff;color:#374151;outline:none;cursor:pointer}
+body.dark select.form-select{background:#1e293b;border-color:#334155;color:#f1f5f9}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.section-title{font-size:15px;font-weight:700}
+
+/* ── FINANCE ── */
+.fin-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.fin-box{padding:16px;border-radius:14px}
+.fin-box.income{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+body.dark .fin-box.income{background:#14532d;color:#86efac;border-color:#166534}
+.fin-box.expense{background:#fff1f2;border:1px solid #fecdd3;color:#9f1239}
+body.dark .fin-box.expense{background:#450a0a;color:#fca5a5;border-color:#9f1239}
+.fin-box.balance{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3}
+body.dark .fin-box.balance{background:#1e1b4b;color:#a5b4fc;border-color:#3730a3}
+.fin-box-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.7;margin-bottom:4px}
+.fin-box-value{font-size:22px;font-weight:700}
+
+/* ── CONFIG ── */
+.config-section{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px;margin-bottom:14px}
+body.dark .config-section{background:#0f172a;border-color:#1e293b}
+.config-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9}
+body.dark .config-row{border-color:#1e293b}
+.config-row:last-child{border-bottom:none}
+.toggle{width:40px;height:22px;background:#e2e8f0;border-radius:11px;position:relative;cursor:pointer;border:none;transition:background .2s;flex-shrink:0}
+.toggle.on{background:#4f46e5}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s}
+.toggle.on::after{left:21px}
+
+/* ── MISC ── */
+.notif-dropdown{position:absolute;right:0;top:44px;width:300px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.1);z-index:50;padding:12px}
+body.dark .notif-dropdown{background:#0f172a;border-color:#1e293b}
+.notif-item{padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px}
+.notif-item:hover{background:#f8fafc}
+body.dark .notif-item:hover{background:#1e293b}
+.qr-sim{background:#0f172a;border-radius:14px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;border:1px solid #1e293b;text-align:center}
+.qr-anim{font-size:56px;animation:bounce 1s infinite alternate}
+@keyframes bounce{to{transform:translateY(-6px)}}
+.visitor-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px}
+body.dark .visitor-card{background:#0f172a;border-color:#1e293b}
+.ann-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden}
+body.dark .ann-card{background:#0f172a;border-color:#1e293b}
+.ann-body{padding:16px}
+.ann-footer{background:#f8fafc;border-top:1px solid #f1f5f9;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;font-size:11px}
+body.dark .ann-footer{background:#1e293b;border-color:#334155}
+.event-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+body.dark .event-card{background:#0f172a;border-color:#1e293b}
+.ministry-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px}
+body.dark .ministry-card{background:#0f172a;border-color:#1e293b}
+.report-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px}
+body.dark .report-card{background:#0f172a;border-color:#1e293b}
+.profile-header{display:flex;align-items:center;gap:14px;padding:16px;background:#f8fafc;border-radius:12px;margin-bottom:16px}
+body.dark .profile-header{background:#1e293b}
+.avatar-lg{width:52px;height:52px;border-radius:50%;background:#4f46e5;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0}
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:12px}
+body.dark .detail-row{border-color:#1e293b}
+.detail-row:last-child{border-bottom:none}
+.detail-label{color:#94a3b8;font-weight:600}
+.chart-container{position:relative;height:220px;width:100%}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.span-2{grid-column:1/-1}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="notif-container" id="notifs"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  IGLESIA CRISTIANA PALABRA VIVA
+//  Sistema de Gestión Integral v1.0
+//  Almacenamiento: localStorage (sin servidor)
+// ══════════════════════════════════════════════
+
+// ── PERSISTENCIA LOCAL ──
+const DB = {
+  get(k) { try { return JSON.parse(localStorage.getItem('icpv_' + k)) || null } catch { return null } },
+  set(k, v) { localStorage.setItem('icpv_' + k, JSON.stringify(v)) },
+  del(k) { localStorage.removeItem('icpv_' + k) },
+  init() {
+    if (!this.get('init')) {
+      this.set('members',     SEED.members);
+      this.set('visitors',    SEED.visitors);
+      this.set('announcements', SEED.announcements);
+      this.set('events',      SEED.events);
+      this.set('finance',     SEED.finance);
+      this.set('attendance',  SEED.attendance);
+      this.set('ministries',  SEED.ministries);
+      this.set('users',       SEED.users);
+      this.set('config', {
+        churchName: 'Iglesia Cristiana Palabra Viva',
+        pastor: 'Pastor Jean Paulite',
+        address: 'Don Pedro, Santiago, Rep. Dom.',
+        phone: '809-861-7069',
+        email: 'paulitejean@hotmail.com',
+        darkMode: false,
+        notifications: true,
+        currency: 'RD$'
+      });
+      this.set('init', true);
+    }
+  }
+};
+
+// ── DATOS SEMILLA ──
+const SEED = {
+  users: [
+    { id: 1, username: 'Admin', password: 'Admin1234', role: 'Administrador', name: 'Pasteur Jean Paulite', active: true }
+  ],
+  members: [
+    { id: 1, nombre: 'Morency Dawens', edad: null, telefono: '829-393-3531', correo: '', direccion: 'Cienfuego Mella 1 #47', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Eveline Morency', contactoTel: '509-3189-7213', fechaNacimiento: '', idOriginal: '00-030' },
+    { id: 2, nombre: 'Paulite Jean', edad: 65, telefono: '809-861-7069', correo: 'paulitejean@hotmail.com', direccion: 'Don Pedro carretera pena, entrada la finca casa #4', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Juleta Nepius (Esposa)', contactoTel: '809-570-9795', fechaNacimiento: '04/05/61', idOriginal: '00-001' },
+    { id: 3, nombre: 'Ester Polanji Jean Nepius', edad: 29, telefono: '849-854-9942', correo: 'esterpolanjijean@outlook.com', direccion: 'Don Pedro carretera pena, entrada la finca casa #4', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Jean Paulite (Padre)', contactoTel: '809-570-9795', fechaNacimiento: '11/18/97', idOriginal: '00-003' },
+    { id: 4, nombre: 'Devorah  Jean Nepuis', edad: 27, telefono: '809-852-9926', correo: 'devorah22@gmail.com', direccion: 'Don Pedro carretera pena, entrada la finca casa #4', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Jean Paulite (Padre)', contactoTel: '809-570-9795', fechaNacimiento: '12/22/99', idOriginal: '00-004' },
+    { id: 5, nombre: 'Jesula Estilien', edad: null, telefono: '829-747-1302', correo: '', direccion: 'Cienfuego, Mella 1 Calle 25', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: 'No tendra Carta', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Fr Ronel Dera (Esposo)', contactoTel: '829-602-8771', fechaNacimiento: '', idOriginal: '00-032' },
+    { id: 6, nombre: 'Nadege Mesadiue', edad: null, telefono: '829-448-8316', correo: 'Nadegemesadieu@hotmail.com', direccion: 'la Unión, Calle #8', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Luccenefaveur', contactoTel: '849-283-2211', fechaNacimiento: '', idOriginal: '00-047' },
+    { id: 7, nombre: 'Siliane Nasés (Sr Marcius Cadet)', edad: 43, telefono: '849-264-0495', correo: '', direccion: 'La piña, calle 43 n.1o', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Rosemanie (Cuñada)', contactoTel: '829-562-9297', fechaNacimiento: '09/02/83', idOriginal: '00-052' },
+    { id: 8, nombre: 'Ortilier Nathalie', edad: null, telefono: '', correo: '', direccion: '', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: '', nacionalidad: 'Haitiana', ciudad: '', contactoNombre: '', contactoTel: '', fechaNacimiento: '', idOriginal: '00-105' },
+    { id: 9, nombre: 'Rochebrun Judith', edad: 40, telefono: '809-660-3792', correo: '', direccion: 'Mella 1calle#57', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '809-996-4165', fechaNacimiento: '09/10/86', idOriginal: '00-124' },
+    { id: 10, nombre: 'Yoldie P. Verpé', edad: null, telefono: '849-653-9505', correo: '', direccion: 'Mella 1 Calle 57', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-887-7694', fechaNacimiento: '', idOriginal: '00-172' },
+    { id: 11, nombre: 'Cherlineda Lucien', edad: null, telefono: '829-634-8085', correo: '', direccion: 'Santiago', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '', idOriginal: '00-178' },
+    { id: 12, nombre: 'Rosilianne Charles(sr Esner Emmanuel)', edad: 43, telefono: '849-623-9923', correo: '', direccion: 'Cienfuego, Calle #8 84', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '11/05/83', idOriginal: '00-033' },
+    { id: 13, nombre: 'Destine Fourna', edad: 31, telefono: '829-332-0287', correo: '', direccion: 'Ciruelitos Calle 2 , casa #6', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Lufane Aurelien', contactoTel: '32-71-67-09', fechaNacimiento: '04/01/95', idOriginal: '00-060' },
+    { id: 14, nombre: 'Jackson Pierre (Dieupanou)', edad: null, telefono: '849-269-4786', correo: '', direccion: 'Cienfuego Calle #4', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '', idOriginal: '00-061' },
+    { id: 15, nombre: 'Geurline Calixte (Sr Wendy Silly)', edad: 41, telefono: '829-540-0931', correo: '', direccion: 'Cienfugo', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Calexte', contactoTel: '509-32904083', fechaNacimiento: '09/06/85', idOriginal: '00-076' },
+    { id: 16, nombre: 'Etienne Adline', edad: 41, telefono: '829-573-8583', correo: 'adline.el1985@gmail.com', direccion: 'En sanchez Ramos Calle# 53', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Etienne Jean', contactoTel: '809-819-6277', fechaNacimiento: '09/10/85', idOriginal: '00-077' },
+    { id: 17, nombre: 'Rocheny Derard', edad: 35, telefono: '829-644-0381', correo: 'rochenyderrard123@gmail.com', direccion: 'Cienfuego Santa Lucia Calle #10 Casa 28', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Fr Ronel', contactoTel: '829-602-8771', fechaNacimiento: '01/01/91', idOriginal: '00-080' },
+    { id: 18, nombre: 'Fr Sirenord Gabriel', edad: 38, telefono: '809-480-0457', correo: 'gabrielsirenord@gmail.com', direccion: 'Cien Fuego Mella 1 , Calle 35', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Me Gabriel Sirenord (Esposa)', contactoTel: '50940757394', fechaNacimiento: '05/21/88', idOriginal: '00-085' },
+    { id: 19, nombre: 'Jacky Doriscar', edad: 43, telefono: '849-918-8307', correo: '', direccion: 'El Ingenio', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Pachline', contactoTel: '47599265', fechaNacimiento: '05/05/83', idOriginal: '00-088' },
+    { id: 20, nombre: 'Valcourt Kenaud', edad: 41, telefono: '829-272-4242', correo: 'Valcourtkenaud@hoogmail.com', direccion: 'Cienfuego San Lorenzo Casa #8', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Fr Facuis Valcourt', contactoTel: '509-44329174', fechaNacimiento: '11/21/85', idOriginal: '00-091' },
+    { id: 21, nombre: 'Guerline Bolival (Sr Roland sibrun)', edad: null, telefono: '', correo: '', direccion: 'La Union Calle #4', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-585-5372', fechaNacimiento: '', idOriginal: '00-102' },
+    { id: 22, nombre: 'Ade Bercius', edad: 40, telefono: '829-808-2631', correo: '', direccion: 'Calle 51 A Tabaco', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-356-7063', fechaNacimiento: '10/06/86', idOriginal: '00-133' },
+    { id: 23, nombre: 'Yousedaylin Noel', edad: 17, telefono: '', correo: '', direccion: 'La Unión', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Levy (Padre)', contactoTel: '829-880-1543', fechaNacimiento: '09/25/09', idOriginal: '00-148' },
+    { id: 24, nombre: '4', edad: null, telefono: '849-286-3666', correo: '', direccion: 'Cienfuego calle 3 no 16', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Macialine Romeno', contactoTel: '509-38972924', fechaNacimiento: '', idOriginal: '00-058' },
+    { id: 25, nombre: 'Nelzi Aceline', edad: 70, telefono: '', correo: '', direccion: '', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: '', contactoNombre: '', contactoTel: '', fechaNacimiento: '10/18/56', idOriginal: '00-103' },
+    { id: 26, nombre: 'Leonel Jean', edad: null, telefono: '809-875-7056', correo: '', direccion: 'Los Salados Santiago', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '', idOriginal: '00-179' },
+    { id: 28, nombre: 'Saint Louis peterson', edad: 32, telefono: '849-925-4616', correo: '', direccion: 'Cien fuego calle 5 Santiago', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-981-0837', fechaNacimiento: '02/24/94', idOriginal: '00-183' },
+    { id: 29, nombre: 'Luvia Merency', edad: 31, telefono: '809-946-4577', correo: '', direccion: 'Cien Fuego sanlorenso Calle 1 #3', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-980-3652', fechaNacimiento: '02/14/95', idOriginal: '00-188' },
+    { id: 30, nombre: 'Wilner Maitre', edad: 55, telefono: '809-701-751', correo: '', direccion: 'Ensanche Espaillat', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '03/15/71', idOriginal: '00-011' },
+    { id: 31, nombre: 'Belfort Elmerantha', edad: 34, telefono: '809-624-2726', correo: '', direccion: 'Cien fuego Mella 2 Calle 20', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Union libre', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '11/01/92', idOriginal: '00-184' },
+    { id: 32, nombre: 'Ketia Monterus', edad: null, telefono: '829-632-7417', correo: '', direccion: 'Mella 1 calle 35', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-344-4316', fechaNacimiento: '', idOriginal: '00-177' },
+    { id: 33, nombre: 'Levy saintilaire', edad: 48, telefono: '809-880-1543', correo: 'saintilairelevy546@gmail.com', direccion: 'Calle 1 #35, La unión', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Losenie Marcelus (Madre)', contactoTel: '509-4117-0417', fechaNacimiento: '09/04/78', idOriginal: '00-009' },
+    { id: 34, nombre: 'Sr Enise Cadet (Sr Francklen Bien-Aime)', edad: 41, telefono: '829-910-1991', correo: '', direccion: 'Mella 2 Calle #8 Casa 28', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '509-3897-2924', fechaNacimiento: '10/30/85', idOriginal: '00-059' },
+    { id: 35, nombre: 'Marcelus Fenet', edad: null, telefono: '829-528-3596', correo: '', direccion: 'Puente Seco', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Marcelus Diano (Cuñado)', contactoTel: '509-3346-2524', fechaNacimiento: '', idOriginal: '00-041' },
+    { id: 36, nombre: 'Marie Suze Prema', edad: null, telefono: '829-8076-639', correo: '', direccion: 'Mella 1 calle 49', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Berlanole Elvis', contactoTel: '849-9197-390', fechaNacimiento: '', idOriginal: '00-014' },
+    { id: 37, nombre: 'Maxon Cadet Yadley', edad: null, telefono: '849-283-6175', correo: '', direccion: '', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '509-4465-7069', fechaNacimiento: '', idOriginal: '00-062' },
+    { id: 38, nombre: 'Wayclef pruna', edad: 20, telefono: '809-628-3227', correo: '', direccion: 'Santiago Mella 1 Calle 51', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Hatiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '11/09/06', idOriginal: '00-182' },
+    { id: 39, nombre: 'Durni Vilcius', edad: null, telefono: '809-903-1734', correo: '', direccion: '', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '', idOriginal: '00-181' },
+    { id: 40, nombre: 'Cristelas Antoine Bedou (Antoine Joseph)', edad: null, telefono: '829-812-3520', correo: '', direccion: 'La Únion calle 6. a 7', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-212-3581', fechaNacimiento: '', idOriginal: '00-171' },
+    { id: 41, nombre: 'Bernard Nancy', edad: 32, telefono: '809-703-3661', correo: '', direccion: 'La piña', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '08/15/94', idOriginal: '00-180' },
+    { id: 42, nombre: 'Saintelaine Radimaitre', edad: 31, telefono: '809-637-5209', correo: '', direccion: 'Padre Billini', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-399-1829', fechaNacimiento: '05/18/95', idOriginal: '00-093' },
+    { id: 43, nombre: 'Manétte Estache (sr Marcelus fenet)', edad: 48, telefono: '829-528-3596', correo: '', direccion: 'Puente Seco', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Marcelus Diano (hermano)', contactoTel: '509-3346-2524', fechaNacimiento: '02/08/78', idOriginal: '00-040' },
+    { id: 44, nombre: 'Keny Marcelin', edad: null, telefono: '829-301-3864', correo: 'KenyMarcelin23@gmail.com', direccion: 'Cienfuego Mella Calle 49/45 Barrio Alegria', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Union Libre', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Petion Adonna (Pastor)', contactoTel: '809-802-8981', fechaNacimiento: '', idOriginal: '00-066' },
+    { id: 45, nombre: 'Yoseph Dayana', edad: 29, telefono: '849-856-4304', correo: '', direccion: 'Cien fuego Mella 1 calle 49', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-301-3864', fechaNacimiento: '05/18/97', idOriginal: '00-186' },
+    { id: 46, nombre: 'Jean Etienne', edad: null, telefono: '809-819-6277', correo: 'Etiennejean1@hotmail.com', direccion: 'Ciruelito', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Enite Ramettre', contactoTel: '809-819-6277', fechaNacimiento: '', idOriginal: '00-067' },
+    { id: 47, nombre: 'Rodney Saint Cyr', edad: 49, telefono: '829-934-9992', correo: 'rodeneysaintcry@gmail.com', direccion: 'Los Ciguelitos , Calle 3', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Union Libre', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Miguel Saint Cry', contactoTel: '509-7670440', fechaNacimiento: '04/27/77', idOriginal: '00-068' },
+    { id: 48, nombre: 'Julite Nepius (Sr Paulite Jean)', edad: 54, telefono: '849-878-4678', correo: '', direccion: 'Don Pedro carretera pena, entrada la finca casa #4', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Jean Paulite (Esposo)', contactoTel: '809-570-9795', fechaNacimiento: '06/18/72', idOriginal: '00-002' },
+    { id: 49, nombre: 'Lourde Francois', edad: 39, telefono: '849-862-1987', correo: '', direccion: 'Monterrico Calle #31', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '849-590-2044', fechaNacimiento: '12/21/87', idOriginal: '00-057' },
+    { id: 50, nombre: 'Derelien Rose mannette Sr Loveson', edad: 30, telefono: '849-465-7537', correo: '', direccion: 'Mella 2 Calle 8 #28', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Sortera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '849-385-5319', fechaNacimiento: '03/01/96', idOriginal: '00-161' },
+    { id: 51, nombre: 'Mariela Kercivil', edad: 28, telefono: '', correo: '', direccion: 'Sabaneta de Jesica', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Anderson (esposo)', contactoTel: '829-795-4532', fechaNacimiento: '07/13/98', idOriginal: '00-070' },
+    { id: 52, nombre: 'Floberson Ade Val', edad: 18, telefono: '', correo: 'adevalfloberson@gmail.com', direccion: 'Mella 1 Calle 51A Tabaco Frente a la Torre', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Dominicana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Ade Bercius (Padre)', contactoTel: '829-356-7063', fechaNacimiento: '10/01/08', idOriginal: '00-049' },
+    { id: 53, nombre: 'Sanette Noel (Sr Levy)', edad: 44, telefono: '809-880-1543', correo: '', direccion: 'Calle 1 #35, La unión', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Junon Noel', contactoTel: '509-4195-8761', fechaNacimiento: '01/15/82', idOriginal: '00-010' },
+    { id: 54, nombre: 'Marcellus Jurianie', edad: null, telefono: '849-3146-124', correo: '', direccion: 'Santiago', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '809-484-3923', fechaNacimiento: '', idOriginal: '00-185' },
+    { id: 55, nombre: 'Ghiselle Morency (Sr Jacquecilien)', edad: 33, telefono: '829-457-3649', correo: '', direccion: 'Monterrico Mella 1 Calle #25 Casa 10', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-443-4868', fechaNacimiento: '06/30/93', idOriginal: '00-082' },
+    { id: 56, nombre: 'Patricia Emmanuel', edad: 22, telefono: '849-754-9711', correo: '', direccion: '', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: '', contactoNombre: '', contactoTel: '', fechaNacimiento: '05/03/04', idOriginal: '00-111' },
+    { id: 57, nombre: 'Fr Devil Saintilma', edad: 56, telefono: '809-90-0957', correo: '', direccion: 'Mella #1 Calle #47 Casa #24', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '509-3514-3055', fechaNacimiento: '12/31/70', idOriginal: '00-064' },
+    { id: 58, nombre: 'Jandri Etienne', edad: 16, telefono: '829-252-8877', correo: '', direccion: 'Los ciruelitos', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: '', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '10/02/10', idOriginal: '00-112' },
+    { id: 59, nombre: 'Amoboise Wislene (Sr Kernizan)', edad: 44, telefono: '829-571-3585', correo: '', direccion: '', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '12/24/82', idOriginal: '00-083' },
+    { id: 60, nombre: 'Izmaerline Bastien (Sr Estime Peterson)', edad: 30, telefono: '829-448-9597', correo: '', direccion: 'Calle 51A Tabaco', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Richard (Hermano)', contactoTel: '809-815-5923', fechaNacimiento: '04/25/96', idOriginal: '00-079' },
+    { id: 61, nombre: 'Carla belizaire', edad: 21, telefono: '809-869-5787', correo: '', direccion: 'Cienfuego Calle #7', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Annieze Pierre (Madre)', contactoTel: '829-830-8864', fechaNacimiento: '04/01/05', idOriginal: '00-086' },
+    { id: 62, nombre: 'Anniez Pierre', edad: 46, telefono: '829-830-8864', correo: '', direccion: 'Cien Fuego , calle 7 Esquina Caliente', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Union Libre', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '11/25/80', idOriginal: '00-087' },
+    { id: 63, nombre: 'Patricia Filysse (M Fredelin Cherfils)', edad: 34, telefono: '829-371-5330', correo: '', direccion: 'Cienfuego Mella 1 Calle #21', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '04/24/92', idOriginal: '00-045' },
+    { id: 64, nombre: 'Flenderson Marcellus', edad: 23, telefono: '809-9254-9414', correo: '', direccion: 'Santiago', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-860-9582', fechaNacimiento: '02/16/03', idOriginal: '00-187' },
+    { id: 65, nombre: 'Dieujuste Etienne', edad: 25, telefono: '829-773-0999', correo: 'etiennellevo12312@gmail.com', direccion: 'En sanchez Ramos Calle# 53', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Adline Etienne', contactoTel: '829-573-8583', fechaNacimiento: '10/10/01', idOriginal: '00-078' },
+    { id: 66, nombre: 'Lucia Fucien (Sr wilner Maitre)', edad: null, telefono: '809-815-5354', correo: '', direccion: 'Ensanche Espaillat', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Wilne maitre', contactoTel: '', fechaNacimiento: '', idOriginal: '00-012' },
+    { id: 67, nombre: 'Dania Sirenor (Sr Devil Saintilma)', edad: 44, telefono: '809-480-0457', correo: '', direccion: 'Mella #1 Calle #47 Casa #24', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-455-0346', fechaNacimiento: '03/09/82', idOriginal: '00-065' },
+    { id: 68, nombre: 'Bien Aime Eunia', edad: 17, telefono: '', correo: '', direccion: '', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: 'Falta información', estadoCivil: '', nacionalidad: 'Haitiana', ciudad: '', contactoNombre: '', contactoTel: '', fechaNacimiento: '04/26/09', idOriginal: '00-146' },
+    { id: 69, nombre: 'Manide Licien (Sr Jacky Dorisca)', edad: 43, telefono: '829-619-4777', correo: '', direccion: 'El Ingenio', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Manuchka', contactoTel: '509-48817856', fechaNacimiento: '10/08/83', idOriginal: '00-090' },
+    { id: 70, nombre: 'Obert Celisin', edad: 50, telefono: '829-836-5268', correo: '', direccion: 'Mella 1 de Cienfuego calle 09', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Jose Celestin', contactoTel: '809-750-2460', fechaNacimiento: '05/15/76', idOriginal: '00-107' },
+    { id: 71, nombre: 'Dahala Ange Fenelus', edad: 21, telefono: '', correo: '', direccion: 'Don Pedro carretera pena, entrada la finca casa', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Dominicana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Adelina Fenelus Elira (Madre)', contactoTel: '849-852-6583', fechaNacimiento: '06/08/05', idOriginal: '00-008' },
+    { id: 72, nombre: 'Francisco Jasmin', edad: 29, telefono: '809-230-4055', correo: 'franciscojasmin559@gmail.com', direccion: 'Ensanche Espaillat', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Jasmin Franceline', contactoTel: '509-3763-4115', fechaNacimiento: '04/25/97', idOriginal: '00-019' },
+    { id: 73, nombre: 'Remy Maurency', edad: null, telefono: '849-624-1918', correo: '', direccion: 'Calle la solpresa carretera durate, licey, frente al pollo yaque', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: 'Fuera', estadoCivil: 'soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Miguelina (Prima)', contactoTel: '829-272-7191', fechaNacimiento: '', idOriginal: '00-020' },
+    { id: 74, nombre: 'Rosene Mesana', edad: 30, telefono: '829-316-52-82', correo: '', direccion: 'La union calle 4', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'union libre', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '11/25/96', idOriginal: '00-173' },
+    { id: 75, nombre: 'Chedaline Janvier', edad: 33, telefono: '849-393-1599', correo: '', direccion: 'Mella 1', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '849-653-9505', fechaNacimiento: '03/19/93', idOriginal: '00-175' },
+    { id: 76, nombre: 'Sylveste Jeune', edad: 47, telefono: '829-980-36-53', correo: '', direccion: 'cienfuego calle6 #89', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Union libre', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '09/08/79', idOriginal: '00-174' },
+    { id: 77, nombre: 'Zamor Jonas', edad: 33, telefono: '809-463-4426', correo: '', direccion: 'Santiago', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-634-8085', fechaNacimiento: '12/11/93', idOriginal: '00-176' },
+    { id: 78, nombre: 'Roland Sibrun', edad: 39, telefono: '829-301-3179', correo: '', direccion: 'Cienfuego, calle #4', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Guerlivae bolival', contactoTel: '809-265-2112', fechaNacimiento: '07/19/87', idOriginal: '00-028' },
+    { id: 79, nombre: 'Fr Fredelin Cherfils', edad: 34, telefono: '829-496-0464', correo: '', direccion: 'Mella 1 Calle 21', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-665-2660', fechaNacimiento: '04/08/92', idOriginal: '00-132' },
+    { id: 80, nombre: 'Elie Judson Joseph', edad: 26, telefono: '829-696-1083', correo: 'eliejudsonjoseph31@gmail.com', direccion: 'Ensanche Espaillat calle #8', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Elio Joseph (Madre)', contactoTel: '829-671-8665', fechaNacimiento: '06/21/00', idOriginal: '00-029' },
+    { id: 81, nombre: 'Zamor Jonas', edad: 33, telefono: '809-463-4426', correo: '', direccion: 'Calle #16', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Union Libre', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '11/12/93', idOriginal: '00-155' },
+    { id: 82, nombre: 'Maitre wilnie', edad: 31, telefono: '829-375-7944', correo: '', direccion: 'Santiago La Union Calle 3', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-886-2344', fechaNacimiento: '12/18/95', idOriginal: '00-118' },
+    { id: 83, nombre: 'Julianie Marcelis', edad: 29, telefono: '829-626-9419', correo: '', direccion: 'Mella 2 calle 22 #2', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Fennel Malcellus', contactoTel: '', fechaNacimiento: '10/26/97', idOriginal: '00-119' },
+    { id: 84, nombre: 'Marijo Meme', edad: 29, telefono: '849-392-2230', correo: '', direccion: 'La Union', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Sr Nadege', contactoTel: '829-448-8316', fechaNacimiento: '04/27/97', idOriginal: '00-135' },
+    { id: 85, nombre: 'Sr Nadia Etienne', edad: 36, telefono: '829-826-0633', correo: '', direccion: 'Santiago calle #7', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '08/23/90', idOriginal: '00-120' },
+    { id: 86, nombre: 'Matilda Devil', edad: 15, telefono: '809-480-0457', correo: '', direccion: 'Mella 1 Calle 47', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '07/08/11', idOriginal: '00-152' },
+    { id: 87, nombre: 'Bikerline Fenelus', edad: 24, telefono: '', correo: 'miguelinafelus@gmail.com', direccion: 'Don Pedro carretera pena, entrada la finca casa', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Adelina Fenelus Elira (Madre)', contactoTel: '849-852-6583', fechaNacimiento: '08/08/02', idOriginal: '00-007' },
+    { id: 88, nombre: 'Jocelaine Delvace', edad: 39, telefono: '', correo: '', direccion: 'Cienfuego La piña Calle 43', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '09/25/87', idOriginal: '00-016' },
+    { id: 89, nombre: 'Jacciues Wendy', edad: 30, telefono: '809-939-2042', correo: '', direccion: 'Cienfuego', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casado (Cherizard Gueline)', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '11/08/96', idOriginal: '00-167' },
+    { id: 90, nombre: 'Cherizard Guerline', edad: 29, telefono: '849-869-1667', correo: '', direccion: 'Cienfuego', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada (Jacyed Wendy)', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '10/23/97', idOriginal: '00-166' },
+    { id: 91, nombre: 'Gertha cristian (Sr Iliofen Regilus)', edad: 42, telefono: '', correo: '', direccion: '', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: '', contactoNombre: '', contactoTel: '', fechaNacimiento: '01/20/84', idOriginal: '00-095' },
+    { id: 92, nombre: 'Anise Cadet', edad: 29, telefono: '829-356-4925', correo: '', direccion: 'Calle 4 San Lorenzo # 10', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Union libre', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Keny', contactoTel: '829-301-3864', fechaNacimiento: '07/28/97', idOriginal: '00-104' },
+    { id: 93, nombre: 'Jania Etiene', edad: null, telefono: '829-388-4755', correo: '', direccion: 'Gurabito Calle 4 casa', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '', idOriginal: '00-018' },
+    { id: 94, nombre: 'Belonie Lovensia', edad: 23, telefono: '829-5795-236', correo: '', direccion: 'Cienfuego La piña', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Belony Lovensia', contactoTel: '829-830-8190', fechaNacimiento: '06/02/03', idOriginal: '00-017' },
+    { id: 95, nombre: 'Kesner Fenelus', edad: null, telefono: '849-433-1959', correo: 'kesnerfenne@yahoo.fr', direccion: 'Don Pedro carretera pena, entrada la finca casa', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: 'Fuera del país', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Adelina Fenelus Elira (Esposa)', contactoTel: '849-852-6583', fechaNacimiento: '', idOriginal: '00-005' },
+    { id: 96, nombre: 'Adelina Elira (Sr Kesnel Fenelus)', edad: null, telefono: '849-852-6583', correo: 'Adelinaelira@hotmail.com', direccion: 'Don Pedro carretera pena, entrada la finca casa', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Kesner Fenelus (Esposo)', contactoTel: '809-439-1959', fechaNacimiento: '', idOriginal: '00-006' },
+    { id: 97, nombre: 'Luckson Occius', edad: 39, telefono: '829-653-5355', correo: '', direccion: 'Cienfuego', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: 'Fuera del pais', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Jovenel Michel', contactoTel: '509-3108-3035', fechaNacimiento: '12/13/87', idOriginal: '00-013' },
+    { id: 98, nombre: 'Mithsa Charle', edad: 24, telefono: '829-686-2446', correo: '', direccion: 'Don Pedro carretera pena, entrada la finca casa #4', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: 'Fuera del pais', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '05/06/02', idOriginal: '00-015' },
+    { id: 99, nombre: 'Filose Eloi (Sr Rony Compere)', edad: 48, telefono: '829-368-7018', correo: '', direccion: 'Cien fuegos, Mella 1 calle 58', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Elino (cuñado)', contactoTel: '829-703-5916', fechaNacimiento: '02/08/78', idOriginal: '00-021' },
+    { id: 100, nombre: 'Natacha Bordes', edad: 50, telefono: '829-319-3221', correo: '', direccion: 'Cienfuego los Solares', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: 'No tendra carta', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '06/30/76', idOriginal: '00-022' },
+    { id: 101, nombre: 'Joseph Lamour', edad: null, telefono: '849-341-8755', correo: '', direccion: 'Cienfuego mella 1', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: 'En Haiti', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Frandie Lamour', contactoTel: '509-3690-6315', fechaNacimiento: '', idOriginal: '00-023' },
+    { id: 102, nombre: 'Marie Gertrude Gay', edad: 58, telefono: '809-232-6826', correo: '', direccion: 'Cien fuegos, Mella 1 calle 35', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Grauvin Gaulle', contactoTel: '809-232-6826', fechaNacimiento: '03/01/68', idOriginal: '00-024' },
+    { id: 103, nombre: 'Gilbert Civil', edad: 36, telefono: '809-546-2236', correo: 'civilgilbert1@gmail.com', direccion: 'Cien fuego, Mella 1', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Manoucheka Civil', contactoTel: '', fechaNacimiento: '07/02/90', idOriginal: '00-025' },
+    { id: 104, nombre: 'Lovenson Maitre', edad: null, telefono: '829-518-2848', correo: 'maitreloveson@gmail.com', direccion: 'Cienfuego , Calle #3', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: 'No tendra Carta', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Maitre someson', contactoTel: '509-3117-8154', fechaNacimiento: '', idOriginal: '00-026' },
+    { id: 105, nombre: 'Sultane Marc Cesar', edad: 36, telefono: '829-722-3446', correo: '', direccion: 'Sanchez Libertad, calle 1# 132', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Divorciada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Mr Marc Cesar', contactoTel: '509-754-8620', fechaNacimiento: '09/15/90', idOriginal: '00-027' },
+    { id: 106, nombre: 'Ronel Dera', edad: 52, telefono: '829-602-8771', correo: '', direccion: 'Cienfuego, mella 1 calle 25', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Sr Ronel Dera (Esposa)', contactoTel: '829-747-1202', fechaNacimiento: '12/29/74', idOriginal: '00-031' },
+    { id: 107, nombre: 'Fr Jacquecilien Cenelus', edad: 39, telefono: '829-457-3649', correo: '', direccion: 'Cienfuego Mella 1 calle #25 casa 10', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Bony Destin (Madre)', contactoTel: '', fechaNacimiento: '10/19/87', idOriginal: '00-034' },
+    { id: 108, nombre: 'Anise Erilus ( Sr Watson Fils-Aime)', edad: 53, telefono: '809-605-9347', correo: '', direccion: 'Cienfuego Mella 1 Calle #47', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '07/06/73', idOriginal: '00-035' },
+    { id: 109, nombre: 'Limage Dieuvli', edad: 46, telefono: '829-561-8189', correo: '', direccion: 'Sabana Iglesia Peaton 1 casa no.21', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '509-43735815', fechaNacimiento: '02/22/80', idOriginal: '00-036' },
+    { id: 110, nombre: 'Osimene Petit-frere', edad: 38, telefono: '809-354-8113', correo: '', direccion: 'Sabana Iglesia Peaton 1', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '11/06/88', idOriginal: '00-037' },
+    { id: 111, nombre: 'Blondel Lubin', edad: null, telefono: '829-381-6842', correo: 'Blondellbinibil@gmail.com', direccion: '', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Dordy (primo)', contactoTel: '509-41988301', fechaNacimiento: '', idOriginal: '00-038' },
+    { id: 112, nombre: 'Guerda Vilcius', edad: null, telefono: '829-589-9400', correo: '', direccion: 'Mella 1, calle 31', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '', idOriginal: '00-039' },
+    { id: 113, nombre: 'Kenly  Luciano Sanvil', edad: null, telefono: '809-984-6561', correo: 'parpuierft450@gmail.com', direccion: '', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Rosemanie saint (Madre)', contactoTel: '809-984-6561', fechaNacimiento: '', idOriginal: '00-042' },
+    { id: 114, nombre: 'Kensy  Luciano Sanvil', edad: null, telefono: '809-984-6561', correo: 'kensyluciano1@gmail.com', direccion: '', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Rosemanie saint (Madre)', contactoTel: '809-984-6561', fechaNacimiento: '', idOriginal: '00-044' },
+    { id: 115, nombre: 'Christiane Saintvil (Sr Jackson Pierre)', edad: null, telefono: '849-269-4786', correo: '', direccion: 'Cien Fuego, calle #4', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Levie sentiler', contactoTel: '809-880-1543', fechaNacimiento: '', idOriginal: '00-046' },
+    { id: 116, nombre: 'Val Marie Flore (Sr Bercuis Ade)', edad: 42, telefono: '829-356-7063', correo: 'valdinev292@gmail.com', direccion: 'Mella 1 Calle 51A Tabaco Frente a la Torre', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Sr Jina Val (Hermana)', contactoTel: '509-47657239', fechaNacimiento: '11/30/84', idOriginal: '00-048' },
+    { id: 117, nombre: 'Cleana Jeudi', edad: 27, telefono: '809-216-5978', correo: '', direccion: 'Cien fuego, calle 4, #4', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: 'No lleno el formulario', estadoCivil: 'Unio Libre', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Limage Dieuconserve', contactoTel: '509-40579154', fechaNacimiento: '09/25/99', idOriginal: '00-050' },
+    { id: 118, nombre: 'Miscalineda Larrieux', edad: 22, telefono: '829-726-1864', correo: '', direccion: 'Barrio Libertad Calle 7', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-552-2193', fechaNacimiento: '06/05/04', idOriginal: '00-162' },
+    { id: 119, nombre: 'Katiana Jean Pierre', edad: 26, telefono: '829-295-1642', correo: '', direccion: 'Barrio Libertad Calle 7', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-216-3135', fechaNacimiento: '02/05/00', idOriginal: '00-163' },
+    { id: 120, nombre: 'Enude Morency (Sr Joel Saint-Cyr)', edad: 41, telefono: '809-340-1832', correo: '', direccion: 'Ingenio Arriba', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '06/04/85', idOriginal: '00-157' },
+    { id: 121, nombre: 'Elisia Fillo Gerne', edad: 40, telefono: '809-250-1948', correo: '', direccion: 'Cienfuego', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '06/28/86', idOriginal: '00-169' },
+    { id: 122, nombre: 'Natacha L. Jean', edad: null, telefono: '829-552-2193', correo: '', direccion: 'Santiago Barrio Libertad  Calle 7', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-678-7278', fechaNacimiento: '', idOriginal: '00-170' },
+    { id: 123, nombre: 'Philysse Wesly', edad: 27, telefono: '829-623-2404', correo: '', direccion: 'Monterico Cienfuego', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-550-1146', fechaNacimiento: '08/15/99', idOriginal: '00-165' },
+    { id: 124, nombre: 'Fr Jouvens Compere Eloi', edad: 17, telefono: '809-419-2564', correo: '', direccion: 'Santiago Ensanche Mella 1', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Sr Filose(Madre)', contactoTel: '829-368-7018', fechaNacimiento: '03/06/09', idOriginal: '00-158' },
+    { id: 125, nombre: 'Kenny Jean Pierre', edad: 28, telefono: '849-878-4141', correo: '', direccion: 'Barrio Libertad Calle 7 N°34', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'N/a', contactoTel: '829-644-3779', fechaNacimiento: '05/24/98', idOriginal: '00-164' },
+    { id: 126, nombre: 'Zephirin Dieunie', edad: 31, telefono: '829-472-2249', correo: '', direccion: 'Cienfuegos', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-846-3738', fechaNacimiento: '12/12/95', idOriginal: '00-145' },
+    { id: 127, nombre: 'Sirenor Dania', edad: 44, telefono: '809-480-0457', correo: '', direccion: 'Mella 1 Calle #47 Casa 37', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-455-0346', fechaNacimiento: '03/09/82', idOriginal: '00-126' },
+    { id: 128, nombre: 'Sr Rosemanie Marcellus (Sr Estenio)', edad: 48, telefono: '829-864-5054', correo: '', direccion: 'La Piña Santiago', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-861-6732', fechaNacimiento: '04/10/78', idOriginal: '00-127' },
+    { id: 129, nombre: 'Ortilien Nathalie (Inoncent Etienne)', edad: 39, telefono: '829-506-7688', correo: '', direccion: 'Mella 1 calle#4', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-791-1972', fechaNacimiento: '09/07/87', idOriginal: '00-128' },
+    { id: 130, nombre: 'Wideline Bertin', edad: 35, telefono: '829-573-3507', correo: '', direccion: 'La Union Calle 10', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-448-8316', fechaNacimiento: '01/03/91', idOriginal: '00-129' },
+    { id: 131, nombre: 'Pierre Richard Saint Fleur', edad: 41, telefono: '829-856-5923', correo: '', direccion: 'Sanche Libertadd Calle #4', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-448-9547', fechaNacimiento: '12/05/85', idOriginal: '00-130' },
+    { id: 132, nombre: 'destin Fathson', edad: 43, telefono: '849-803-4441', correo: '', direccion: 'Mella 1 Calle 45 #23', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '849-350-7823', fechaNacimiento: '08/01/83', idOriginal: '00-131' },
+    { id: 133, nombre: 'Delva Vilsainmar', edad: null, telefono: '829-844-3848', correo: '', direccion: 'Cienfuego Calle Juanita Infante', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '840-407-8772', fechaNacimiento: '', idOriginal: '00-134' },
+    { id: 134, nombre: 'Emmanuel Garson', edad: 33, telefono: '829-649-11-44', correo: '', direccion: 'Cienfuego Mella 1 Calle 39', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-643-5355', fechaNacimiento: '07/21/93', idOriginal: '00-136' },
+    { id: 135, nombre: 'Damies Lineda', edad: null, telefono: '809-451-4560', correo: '', direccion: 'Cienfuego San Lorenzo', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '809-451-4560', fechaNacimiento: '', idOriginal: '00-137' },
+    { id: 136, nombre: 'Richcard Ade Val', edad: 17, telefono: '829-356-7063', correo: '', direccion: 'Calle 51 A Tabaco', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '12/31/09', idOriginal: '00-138' },
+    { id: 137, nombre: 'Kechena George', edad: 22, telefono: '809-646-6713', correo: '', direccion: 'Mariayuno Calle 51 A', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '809-283-3092', fechaNacimiento: '01/03/04', idOriginal: '00-139' },
+    { id: 138, nombre: 'Amikelin Dorciné', edad: 42, telefono: '829-584-9636', correo: '', direccion: 'Santiago Cienfuego', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-731-0861', fechaNacimiento: '07/29/84', idOriginal: '00-140' },
+    { id: 139, nombre: 'Dadiana Dorciné', edad: 35, telefono: '829-584-9636', correo: '', direccion: 'Santiago Cienfuego', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '849-205-1828', fechaNacimiento: '09/10/91', idOriginal: '00-141' },
+    { id: 140, nombre: 'Pluviose Vixuis', edad: 39, telefono: '829-884-7702', correo: '', direccion: 'Cuesta colorada', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '809-886-0309', fechaNacimiento: '09/16/87', idOriginal: '00-142' },
+    { id: 141, nombre: 'Petit-Frere Jean Ronel', edad: 35, telefono: '829-922-7469', correo: '', direccion: 'Cienfuego', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '849-803-4820', fechaNacimiento: '10/24/91', idOriginal: '00-143' },
+    { id: 142, nombre: 'Chedena Murat', edad: 32, telefono: '829-605-5175', correo: '', direccion: 'Mella 1', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '849-378-31-27', fechaNacimiento: '04/03/94', idOriginal: '00-144' },
+    { id: 143, nombre: 'Ecclesiaste saintilmon', edad: 26, telefono: '829-297-7992', correo: '', direccion: 'Santiago Ensanchez Espaillat', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '03/04/00', idOriginal: '00-113' },
+    { id: 144, nombre: 'Senadieu Richard', edad: 36, telefono: '8098518298', correo: '', direccion: 'Santiago de los caballeros Cienfuego Mella 1 Calle 57 #14', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '10/29/90', idOriginal: '00-114' },
+    { id: 145, nombre: 'Wildine  Richard', edad: 38, telefono: '809-340-1811', correo: '', direccion: 'Santiago de los caballeros Cienfuego Mella 1 Calle 57 #14', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '809-851-8298', fechaNacimiento: '10/29/88', idOriginal: '00-115' },
+    { id: 146, nombre: 'Edrinson Milfort', edad: 18, telefono: '', correo: '', direccion: 'Don Pedro carretera pena, entrada la finca casa #4', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: '', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '12/25/08', idOriginal: '00-116' },
+    { id: 147, nombre: 'Bernadette Toussaint', edad: 45, telefono: '829-453-3161', correo: '', direccion: 'Santiago ,Cienfuego En Nazareno Barrio la pulga', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Union Libre', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '849-344-7318', fechaNacimiento: '01/12/81', idOriginal: '00-117' },
+    { id: 148, nombre: 'Dafca Josephe', edad: 23, telefono: '829-742-9848', correo: '', direccion: 'Cienfuego oeste', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-3970841', fechaNacimiento: '11/02/03', idOriginal: '00-121' },
+    { id: 149, nombre: 'Jean marcelin subrun', edad: 39, telefono: '829-877-3784', correo: '', direccion: 'La Union Abajo Calle 4 Esq.2', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-561-2113', fechaNacimiento: '10/05/87', idOriginal: '00-122' },
+    { id: 150, nombre: 'Marie Esther cyprien', edad: 24, telefono: '829-778-9933', correo: '', direccion: 'La Union Calle 4', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-585-2372', fechaNacimiento: '01/19/02', idOriginal: '00-123' },
+    { id: 151, nombre: 'Durny vilcuis', edad: 40, telefono: '', correo: '', direccion: '', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '01/30/86', idOriginal: '00-101' },
+    { id: 152, nombre: 'Joanise ortilien', edad: 30, telefono: '829-791-1972', correo: '', direccion: 'Cienfuego', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-506-76-88', fechaNacimiento: '10/03/96', idOriginal: '00-100' },
+    { id: 153, nombre: 'Sr Danise compere', edad: 39, telefono: '829-315-2910', correo: '', direccion: 'Mella 1 calle 37', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Union Libre', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Lisydor renard', contactoTel: '849-804-2162', fechaNacimiento: '05/01/87', idOriginal: '00-099' },
+    { id: 154, nombre: 'Watson fils aime', edad: 50, telefono: '829-883-3863', correo: '', direccion: 'Calle 6#47 Mella 1', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '829-382-3133', contactoTel: '', fechaNacimiento: '08/26/76', idOriginal: '00-098' },
+    { id: 155, nombre: 'Sr Jude Filisten', edad: 39, telefono: '829-866-2786', correo: '', direccion: 'Ensanche espallat calle 7', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '06/01/87', idOriginal: '00-097' },
+    { id: 156, nombre: 'Jonald Radimaitre', edad: 38, telefono: '809-902-5974', correo: '', direccion: 'Sanche Bermundez', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '809-819-6477', contactoTel: 'Etienne Jean', fechaNacimiento: '06/15/88', idOriginal: '00-096' },
+    { id: 157, nombre: 'Bazil Enise ( Sr Valcourt Kenaud)', edad: 36, telefono: '829-248-6699', correo: '', direccion: 'Cienfuego San Lorenzo Casa #8', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Fr Facuis Valcourt', contactoTel: '509-44329174', fechaNacimiento: '07/27/90', idOriginal: '00-092' },
+    { id: 158, nombre: 'Paul Meliana', edad: 71, telefono: '829-768-4021', correo: '', direccion: 'La Union, Calle #10 Casa 47', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Manuchka', contactoTel: '509-48817856', fechaNacimiento: '10/08/55', idOriginal: '00-089' },
+    { id: 159, nombre: 'Dianette Adecy', edad: null, telefono: '829-876-0328', correo: '', direccion: 'Cienfuego Calle #4 19', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-876-0328', fechaNacimiento: '', idOriginal: '00-084' },
+    { id: 160, nombre: 'Saint Fleur vierglie', edad: 54, telefono: '809-560-1672', correo: '', direccion: 'Ingenio Arriba', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '09/05/72', idOriginal: '00-081' },
+    { id: 161, nombre: 'Rosenely Dera Estilen', edad: 17, telefono: '809-944-8612', correo: '', direccion: 'Santiago Cienfuegos Mella 1 Calle 25', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Ronel Dera (Padre)', contactoTel: '829-602-8771', fechaNacimiento: '10/21/09', idOriginal: '00-073' },
+    { id: 162, nombre: 'Wisly Metis', edad: 41, telefono: '829-580-3757', correo: '', direccion: 'Colinas del Enriquillo ( Los Ciruelitos )', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Josilien Meties', contactoTel: '829-484-0618', fechaNacimiento: '10/05/85', idOriginal: '00-074' },
+    { id: 163, nombre: 'Sr Rosena alcius ( Sr Wisly)', edad: 37, telefono: '849-442-9795', correo: '', direccion: 'Colinas del Enriquillo ( Los Ciruelitos )', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '849-442-9795', fechaNacimiento: '03/15/89', idOriginal: '00-075' },
+    { id: 164, nombre: 'Saint Cyr  jöel', edad: 43, telefono: '809-974-6864', correo: '', direccion: 'Ingenio Arriba', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Filiane Saint Cyr', contactoTel: '509-32904083', fechaNacimiento: '05/18/83', idOriginal: '00-072' },
+    { id: 165, nombre: 'Anderson caneus', edad: 36, telefono: '829-753-9763', correo: '', direccion: 'Sabaneta de Jesica', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '849-856-0312', fechaNacimiento: '03/04/90', idOriginal: '00-071' },
+    { id: 166, nombre: 'Lowencyr Saint Cyr', edad: 23, telefono: '809-603-1642', correo: 'rodemeysaintcry803@gmail.com', direccion: 'Los Ciguelitos, Calle 4', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Miguel Saint Cry', contactoTel: '509-7670441', fechaNacimiento: '02/25/03', idOriginal: '00-069' },
+    { id: 167, nombre: 'Cadet Mariline Yadley', edad: null, telefono: '849-261-6665', correo: '', direccion: '', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Union Libre', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '509-4465-7069', fechaNacimiento: '', idOriginal: '00-063' },
+    { id: 168, nombre: 'a', edad: 59, telefono: '809-780-8410', correo: '', direccion: 'Cien fuego, Mella 1 Calle 3', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-441-5152', fechaNacimiento: '05/21/67', idOriginal: '00-056' },
+    { id: 169, nombre: 'Jean-Willy bien-aime', edad: null, telefono: '829-730-7130', correo: '', direccion: 'Barrio San Lorenzo Calle 2 #16', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Givenie Jean', contactoTel: '509-31067097', fechaNacimiento: '', idOriginal: '00-055' },
+    { id: 170, nombre: 'Antenord Daisena', edad: 72, telefono: '829-472-2249', correo: '', direccion: 'Cienfuego', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: 'Fuera', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-846-3728', fechaNacimiento: '06/09/54', idOriginal: '00-054' },
+    { id: 171, nombre: 'Wendy Silly (del)', edad: 54, telefono: '829-540-0931', correo: '', direccion: 'Mella 1 , #24', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Norcilien Silly', contactoTel: '509-41649746', fechaNacimiento: '10/18/72', idOriginal: '00-053' },
+    { id: 172, nombre: 'Iliofen Regilus', edad: null, telefono: '829-664-7308', correo: '', direccion: 'Cien fuego, sabana Iglesia #20', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '', idOriginal: '00-051' },
+    { id: 173, nombre: 'Caremy st Pierre', edad: 51, telefono: '829-424-3709', correo: '', direccion: 'Sntiago de los Caballeros sanita infante', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Wortime', contactoTel: '829-932-7890', fechaNacimiento: '06/13/75', idOriginal: '00-108' },
+    { id: 174, nombre: 'Rosemanie Sanvil', edad: null, telefono: '809-984-6561', correo: 'RosemanieSaintil15@gmail.com', direccion: '', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '809-984-6561', fechaNacimiento: '', idOriginal: '00-043' },
+    { id: 175, nombre: 'Enide Radimaitre (Sr Jean Etienne)', edad: 47, telefono: '829-399-1829', correo: '', direccion: 'Padre Billini', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-279-7825', fechaNacimiento: '07/19/79', idOriginal: '00-094' },
+    { id: 176, nombre: 'Gerard Etienne', edad: 23, telefono: '809-436-1252', correo: '', direccion: 'Mella 1 calle#4', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '809-879-6277', fechaNacimiento: '07/09/03', idOriginal: '00-125' },
+    { id: 177, nombre: 'Beunise Bien-Aime', edad: 15, telefono: '829-910-1991', correo: '', direccion: 'Cienfuego Mella 2 Calle 8 Casa 28', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-286-3666', fechaNacimiento: '09/21/11', idOriginal: '00-153' },
+    { id: 178, nombre: 'Bien-Aime Eunia', edad: 17, telefono: '809-490-5672', correo: '', direccion: 'Cienfuego Mella 2 Calle 8 Casa 28', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-286-3666', fechaNacimiento: '04/26/09', idOriginal: '00-154' },
+    { id: 179, nombre: 'Maitre Loveson', edad: 26, telefono: '849-385-5319', correo: '', direccion: 'Santiago Mella 2 Calle 8 Casa 28', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '829-910-1991', fechaNacimiento: '03/22/00', idOriginal: '00-160' },
+    { id: 180, nombre: 'Dieuname Florestal', edad: 48, telefono: '809-855-1140', correo: '', direccion: 'Mella 2 calle 10', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Union Libre', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '04/07/78', idOriginal: '00-110' },
+    { id: 181, nombre: 'Therese merone', edad: 35, telefono: '829-260-7622', correo: '', direccion: 'La Union Calle #4 Esq.2', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '04/04/91', idOriginal: '00-109' },
+    { id: 182, nombre: 'Leonel Jean', edad: 34, telefono: '', correo: 'jeanleonel387@gmail.com', direccion: 'Barrio libertad, calle #7 #35', ministerio: 'General', estado: 'Bautizado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: 'Teme', contactoTel: '809-931-0496', fechaNacimiento: '09/02/92', idOriginal: '00-106' },
+    { id: 183, nombre: 'Marceline Belfort', edad: 27, telefono: '809-624-2726', correo: '', direccion: 'Mella 1 calle entre la calle 57 y 59', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Casada', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '01/23/99', idOriginal: '00-168' },
+    { id: 184, nombre: 'Guirlande Gabriel ( Sr Sirenord Gabriel)', edad: 36, telefono: '829-455-0346', correo: '', direccion: 'Santiago Mella1calle 35', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'casado', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '03/20/90', idOriginal: '00-159' },
+    { id: 185, nombre: 'Charlineda Lucien', edad: 28, telefono: '809-463-4426', correo: '', direccion: 'Calle #6', ministerio: 'General', estado: 'Afiliada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Union Libre', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '09/22/98', idOriginal: '00-156' },
+    { id: 186, nombre: 'Wiliamson Devil', edad: 18, telefono: '809-480-0457', correo: '', direccion: 'Mella 1 Calle 47', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '02/14/08', idOriginal: '00-151' },
+    { id: 187, nombre: 'Baby-son Devil', edad: 17, telefono: '809-480-0457', correo: '', direccion: 'Mella 1 Calle 47', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'M', notas: '', estadoCivil: 'Soltero', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '09/30/09', idOriginal: '00-150' },
+    { id: 188, nombre: 'Dafne Emmanuel', edad: 14, telefono: '849-272-9045', correo: '', direccion: 'Calle 3', ministerio: 'General', estado: 'Afiliado', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '12/09/12', idOriginal: '00-149' },
+    { id: 189, nombre: 'Coffy Darline', edad: 29, telefono: '829-846-3738', correo: '', direccion: 'Cienfuego calle 9 #13', ministerio: 'General', estado: 'Bautizada', fechaIngreso: '', genero: 'F', notas: '', estadoCivil: 'Soltera', nacionalidad: 'Haitiana', ciudad: 'Santiago, Rep. Dom.', contactoNombre: '', contactoTel: '', fechaNacimiento: '05/05/97', idOriginal: '00-147' }
+  ],
+  visitors: [
+    { id: 1, nombre: 'Carlos Mendoza',    telefono: '809-111-2222', estado: 'Pendiente',    invitadoPor: 'Rebeca Ortiz',       fechaVisita: '2026-05-17', correo: '',                   notas: 'Primera visita' },
+    { id: 2, nombre: 'Diana Villalta',     telefono: '809-333-4444', estado: 'En Proceso',   invitadoPor: 'Josué Flores',       fechaVisita: '2026-05-17', correo: 'diana.v@mail.com',  notas: 'Interesada en el ministerio de damas' },
+    { id: 3, nombre: 'Marcos Linares',     telefono: '809-555-6666', estado: 'Pendiente',    invitadoPor: 'Samuel Reyes',       fechaVisita: '2026-05-10', correo: '',                   notas: '' },
+    { id: 4, nombre: 'Sofía Hernández',    telefono: '809-777-8888', estado: 'Consolidada',  invitadoPor: 'Ruth Peña',          fechaVisita: '2026-04-26', correo: 'sofia.h@mail.com',  notas: 'Ya asiste regularmente' },
+    { id: 5, nombre: 'Fernando Castro',    telefono: '809-999-0000', estado: 'Pendiente',    invitadoPor: 'Daniel Benítez',     fechaVisita: '2026-05-17', correo: '',                   notas: '' },
+    { id: 6, nombre: 'Elena Rostrán',      telefono: '809-222-3333', estado: 'En Proceso',   invitadoPor: 'Priscila Lara',      fechaVisita: '2026-05-03', correo: 'elena.r@mail.com',  notas: 'Recibió consejería' },
+    { id: 7, nombre: 'Gabriel Suncín',     telefono: '809-444-5555', estado: 'Pendiente',    invitadoPor: 'Jonathan Vega',      fechaVisita: '2026-05-10', correo: '',                   notas: '' },
+    { id: 8, nombre: 'Verónica Galdámez',  telefono: '809-666-7777', estado: 'Consolidada',  invitadoPor: 'María Santos',       fechaVisita: '2026-04-19', correo: 'veronica.g@mail.com', notas: 'Presentada a la congregación' }
+  ],
+  announcements: [
+    { id: 1, titulo: 'Gran Ayuno Congregacional',          contenido: 'Nos uniremos en humillación y oración por las familias este próximo sábado en el templo. Ayuno de 6AM a 6PM.',                    prioridad: 'Alta',  fechaPublicacion: '2026-05-20', medio: 'General',     activo: true },
+    { id: 2, titulo: 'Encuentro de Jóvenes Revolución',    contenido: 'Una noche de adoración extrema y dinámicas especiales. ¡Trae a un amigo! Cupos limitados.',                                        prioridad: 'Media', fechaPublicacion: '2026-05-19', medio: 'Jóvenes',     activo: true },
+    { id: 3, titulo: 'Escuelita Bíblica de Verano',        contenido: 'Inscripciones abiertas para niños de 4 a 12 años. Cupos limitados. Traer acta de nacimiento.',                                    prioridad: 'Alta',  fechaPublicacion: '2026-05-18', medio: 'Niños',       activo: true },
+    { id: 4, titulo: 'Reunión del Consejo de Servidores',  contenido: 'Coordinación de logística para el magno evento del próximo mes. Asistencia obligatoria para todos los líderes.',                   prioridad: 'Media', fechaPublicacion: '2026-05-17', medio: 'Liderazgo',   activo: true },
+    { id: 5, titulo: 'Clase de Bautismos',                 contenido: 'Para todos los que deseen dar el paso de obediencia pública en fe. Miércoles 7PM en el salón principal.',                         prioridad: 'Media', fechaPublicacion: '2026-05-16', medio: 'General',     activo: true },
+    { id: 6, titulo: 'Vigilia de Intercesión Profética',   contenido: 'Clamor por sanidad y milagros en nuestra nación. Viernes a las 10PM hasta el amanecer.',                                          prioridad: 'Alta',  fechaPublicacion: '2026-05-14', medio: 'General',     activo: true }
+  ],
+  events: [
+    { id: 1, titulo: 'Servicio de Celebración Familiar',     fecha: '2026-05-24', hora: '09:00 AM', lugar: 'Auditorio Principal',    ministerio: 'General',          confirmados: 240, descripcion: 'Servicio dominical especial para familias' },
+    { id: 2, titulo: 'Concierto Íntimo de Adoración',        fecha: '2026-05-29', hora: '07:00 PM', lugar: 'Catedral Temática',      ministerio: 'Alabanza',         confirmados: 180, descripcion: 'Noche de adoración y alabanza' },
+    { id: 3, titulo: 'Congreso de Liderazgo Avanzado',       fecha: '2026-06-05', hora: '08:00 AM', lugar: 'Salón Ejecutivo',        ministerio: 'Liderazgo',        confirmados: 55,  descripcion: 'Formación para líderes de célula y ministerios' },
+    { id: 4, titulo: 'Campamento Juvenil Legado',             fecha: '2026-06-12', hora: '03:00 PM', lugar: 'Villa Campestre',        ministerio: 'Jóvenes',          confirmados: 95,  descripcion: 'Campamento de 3 días para jóvenes' },
+    { id: 5, titulo: 'Festival del Niño Creativo',            fecha: '2026-05-31', hora: '10:30 AM', lugar: 'Canchas Externas',       ministerio: 'Niños',            confirmados: 130, descripcion: 'Festival de manualidades y juegos bíblicos' },
+    { id: 6, titulo: 'Conferencia Matrimonial Suprema',       fecha: '2026-06-19', hora: '06:30 PM', lugar: 'Auditorio Principal',    ministerio: 'Damas/Caballeros', confirmados: 110, descripcion: 'Conferencia sobre el matrimonio cristiano' },
+    { id: 7, titulo: 'Evangelismo Urbano Estratégico',        fecha: '2026-05-30', hora: '08:30 AM', lugar: 'Parque Central',         ministerio: 'Misiones',         confirmados: 40,  descripcion: 'Salida de evangelismo en el parque central' },
+    { id: 8, titulo: 'Clínica Médica Comunitaria',            fecha: '2026-06-06', hora: '07:00 AM', lugar: 'Parqueo de la Iglesia',  ministerio: 'Acción Social',    confirmados: 310, descripcion: 'Servicio médico gratuito para la comunidad' }
+  ],
+  finance: [
+    { id: 1,  donante: 'Anónimo',          categoria: 'Ofrenda General',     fecha: '2026-05-17', metodo: 'Efectivo',          monto: 1250, tipo: 'Ingreso', notas: '' },
+    { id: 2,  donante: 'Samuel Reyes',      categoria: 'Diezmo',              fecha: '2026-05-17', metodo: 'Transferencia',     monto: 450,  tipo: 'Ingreso', notas: '' },
+    { id: 3,  donante: 'Compañía Eléctrica',categoria: 'Servicios Públicos',  fecha: '2026-05-14', metodo: 'Débito Automático', monto: 820,  tipo: 'Egreso',  notas: 'Factura mayo' },
+    { id: 4,  donante: 'Ruth Peña',          categoria: 'Diezmo',              fecha: '2026-05-16', metodo: 'Cheque',            monto: 900,  tipo: 'Ingreso', notas: '' },
+    { id: 5,  donante: 'Librería Cristiana', categoria: 'Material Didáctico',  fecha: '2026-05-12', metodo: 'Tarjeta',           monto: 350,  tipo: 'Egreso',  notas: 'Materiales escuela dominical' },
+    { id: 6,  donante: 'Daniel Benítez',     categoria: 'Diezmo',              fecha: '2026-05-17', metodo: 'Transferencia',     monto: 600,  tipo: 'Ingreso', notas: '' },
+    { id: 7,  donante: 'Fondo Pro-Misiones', categoria: 'Ofrenda Especial',    fecha: '2026-05-10', metodo: 'Efectivo',          monto: 1100, tipo: 'Ingreso', notas: '' },
+    { id: 8,  donante: 'Gasolinera El Sol',  categoria: 'Transporte',          fecha: '2026-05-11', metodo: 'Tarjeta',           monto: 150,  tipo: 'Egreso',  notas: 'Autobús domingo' },
+    { id: 9,  donante: 'Josué Flores',       categoria: 'Diezmo',              fecha: '2026-05-15', metodo: 'Transferencia',     monto: 380,  tipo: 'Ingreso', notas: '' },
+    { id: 10, donante: 'Mantenimiento General',categoria:'Infraestructura',    fecha: '2026-05-09', metodo: 'Cheque',            monto: 1800, tipo: 'Egreso',  notas: 'Reparación AC' },
+    { id: 11, donante: 'Grupo de Damas',      categoria: 'Ofrenda Especial',   fecha: '2026-05-08', metodo: 'Efectivo',          monto: 750,  tipo: 'Ingreso', notas: 'Recaudación mensual' },
+    { id: 12, nombre:  'Ezequiel Cruz',       categoria: 'Diezmo',             fecha: '2026-05-01', metodo: 'Transferencia',     monto: 320,  tipo: 'Ingreso', notas: '', donante: 'Ezequiel Cruz' }
+  ],
+  attendance: [
+    { id: 1, servicio: 'Dominical Matutino',   fecha: '2026-05-17', presentes: 285, encargado: 'Mesa Alfa' },
+    { id: 2, servicio: 'Dominical Vespertino',  fecha: '2026-05-17', presentes: 190, encargado: 'Mesa Beta' },
+    { id: 3, servicio: 'Culto de Oración',      fecha: '2026-05-13', presentes: 145, encargado: 'Liderazgo' },
+    { id: 4, servicio: 'Dominical Matutino',   fecha: '2026-05-10', presentes: 310, encargado: 'Mesa Alfa' },
+    { id: 5, servicio: 'Dominical Vespertino',  fecha: '2026-05-10', presentes: 175, encargado: 'Mesa Beta' },
+    { id: 6, servicio: 'Culto de Oración',      fecha: '2026-05-06', presentes: 130, encargado: 'Liderazgo' },
+    { id: 7, servicio: 'Dominical Matutino',   fecha: '2026-05-03', presentes: 295, encargado: 'Mesa Alfa' },
+    { id: 8, servicio: 'Servicio Especial',     fecha: '2026-05-01', presentes: 420, encargado: 'General' }
+  ],
+  ministries: [
+    { id: 1, nombre: 'Alabanza & Artes',          lider: 'Josué Flores',   miembros: 18, proxActividad: 'Ensayo general — Viernes 7PM',                    descripcion: 'Ministerio de música y adoración congregacional', activo: true },
+    { id: 2, nombre: 'Generación Fuego (Jóvenes)',lider: 'Rebeca Ortiz',   miembros: 45, proxActividad: 'Fogata y Palabra — Sábado próximo',                descripcion: 'Ministerio para jóvenes de 15 a 30 años',        activo: true },
+    { id: 3, nombre: 'Semillitas de Fe (Niños)',  lider: 'María Santos',   miembros: 12, proxActividad: 'Teatro de Títeres: David — Domingo',               descripcion: 'Escuela dominical para niños de 4 a 12 años',   activo: true },
+    { id: 4, nombre: 'Damas Virtuosas',            lider: 'Ruth Peña',      miembros: 60, proxActividad: 'Cadena de oración — Martes 6AM',                  descripcion: 'Ministerio de mujeres de la congregación',       activo: true },
+    { id: 5, nombre: 'Varones de Honor',           lider: 'Samuel Reyes',   miembros: 40, proxActividad: 'Conferencia El Rol de Padre — Templo',            descripcion: 'Ministerio de hombres y padres de familia',      activo: true },
+    { id: 6, nombre: 'Acción Social',              lider: 'Daniel Benítez', miembros: 25, proxActividad: 'Clínica médica comunitaria — Junio 6',             descripcion: 'Ministerio de alcance comunitario',              activo: true }
+  ]
+};
+
+// ── ESTADO GLOBAL ──
+const state = {
+  loggedIn: false, currentUser: null,
+  tab: 'dashboard', sidebarCollapsed: false, darkMode: false,
+  loginError: '', loginUser: '', loginPass: '',
+  modal: null, notifDropdown: false,
+  searchMembers: '', filterMinisterio: 'Todos', filterEstado: 'Todos',
+  searchFinance: '', filterFinanceTipo: 'Todos',
+  charts: {}
+};
+
+// ── UTILIDADES ──
+const getInitials = n => n.split(' ').slice(0,2).map(x=>x[0]).join('').toUpperCase();
+const nextId = arr => arr.length ? Math.max(...arr.map(x=>x.id))+1 : 1;
+
+const STATUS_CLASSES = {
+  'Bautizado':'badge-blue','Bautizada':'badge-blue',
+  'Afiliado':'badge-green','Afiliada':'badge-green',
+  'Visitante':'badge-amber','Suspendido':'badge-red',
+  'Activo':'badge-green','Inactivo':'badge-gray',
+  'Pendiente':'badge-amber','En Proceso':'badge-purple',
+  'Consolidado':'badge-green','Consolidada':'badge-green',
+  'Ingreso':'badge-green','Egreso':'badge-red',
+  'Alta':'badge-red','Media':'badge-amber','Baja':'badge-gray'
+};
+const badge = s => `<span class="badge ${STATUS_CLASSES[s]||'badge-gray'}">${s}</span>`;
+
+function showNotif(msg, type='info') {
+  const c = document.getElementById('notifs');
+  const d = document.createElement('div');
+  d.className = `notif notif-${type}`;
+  d.innerHTML = `<span>${type==='success'?'✓':type==='error'?'✕':'ℹ'}</span>${msg}`;
+  c.appendChild(d);
+  setTimeout(() => d.remove(), 3500);
+}
+
+// ── RENDER PRINCIPAL ──
+function render() {
+  document.body.className = state.darkMode ? 'dark' : '';
+  if (!state.loggedIn) { renderLogin(); return; }
+  document.getElementById('app').innerHTML = buildApp();
+  bindAll();
+  renderCharts();
+}
+
+function renderLogin() {
+  document.getElementById('app').innerHTML = `
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-circle">✝</div>
+        <h1>Iglesia Cristiana<br>Palabra Viva</h1>
+        <p>Sistema de Gestión Integral</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Usuario</label>
+        <input class="form-input" id="li-user" type="text" placeholder="Admin" value="${state.loginUser}" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" id="li-pass" type="password" placeholder="••••••••" value="${state.loginPass}" autocomplete="current-password">
+      </div>
+      ${state.loginError ? `<p style="color:#ef4444;font-size:12px;margin-bottom:12px;text-align:center">${state.loginError}</p>` : ''}
+      <button class="btn-primary" id="li-btn">Iniciar Sesión</button>
+      <p style="text-align:center;font-size:11px;color:#94a3b8;margin-top:16px">v1.0.0 · Iglesia Cristiana Palabra Viva</p>
+    </div>
+  </div>`;
+  document.getElementById('li-btn').onclick = doLogin;
+  document.getElementById('li-pass').onkeydown = e => { if (e.key === 'Enter') doLogin(); };
+}
+
+function doLogin() {
+  const u = document.getElementById('li-user').value.trim();
+  const p = document.getElementById('li-pass').value;
+  state.loginUser = u; state.loginPass = p;
+  const user = (DB.get('users')||[]).find(x => x.username===u && x.password===p && x.active);
+  if (user) {
+    state.loggedIn = true; state.currentUser = user;
+    state.loginError = ''; state.darkMode = DB.get('config')?.darkMode || false;
+    render();
+  } else {
+    state.loginError = 'Usuario o contraseña incorrectos.';
+    renderLogin();
+  }
+}
+
+// ── ESTRUCTURA APP ──
+function buildApp() {
+  const members  = DB.get('members')  || [];
+  const visitors = DB.get('visitors') || [];
+  const finance  = DB.get('finance')  || [];
+  const events   = DB.get('events')   || [];
+  return `
+  <div class="app">
+    ${buildSidebar()}
+    <div class="main">
+      ${buildTopbar()}
+      <div class="content">${buildContent(members, visitors, finance, events)}</div>
+    </div>
+  </div>
+  ${state.modal ? buildModal() : ''}`;
+}
+
+function buildSidebar() {
+  const c = state.sidebarCollapsed;
+  const tabs = [
+    {id:'dashboard',   label:'Dashboard',      icon:'📊'},
+    {id:'miembros',    label:'Miembros',        icon:'👥'},
+    {id:'visitantes',  label:'Visitantes',      icon:'👤'},
+    {id:'anuncios',    label:'Anuncios',        icon:'📢'},
+    {id:'eventos',     label:'Eventos',         icon:'📅'},
+    {id:'asistencia',  label:'Asistencia',      icon:'✅'},
+    {id:'finanzas',    label:'Finanzas',        icon:'💰'},
+    {id:'ministerios', label:'Ministerios',     icon:'🏛'},
+    {id:'reportes',    label:'Reportes',        icon:'📈'},
+    {id:'configuracion',label:'Configuración',  icon:'⚙️'},
+  ];
+  const u = state.currentUser;
+  return `<aside class="sidebar ${c?'collapsed':''}">
+    <div class="sidebar-logo">
+      <div class="logo-icon">✝</div>
+      <span class="logo-text">Palabra<span>Viva</span></span>
+      <button class="sidebar-toggle" id="sb-toggle">${c?'▶':'◀'}</button>
+    </div>
+    <nav>
+      ${tabs.map(t=>`<button class="nav-item ${state.tab===t.id?'active':''}" data-tab="${t.id}">
+        <span class="nav-icon">${t.icon}</span>
+        <span class="nav-label">${t.label}</span>
+      </button>`).join('')}
+    </nav>
+    <div class="sidebar-footer">
+      <button class="nav-item" id="dark-toggle">
+        <span class="nav-icon">${state.darkMode?'☀️':'🌙'}</span>
+        <span class="nav-label">${state.darkMode?'Modo Claro':'Modo Oscuro'}</span>
+      </button>
+      <div class="user-card">
+        <div class="user-avatar">${getInitials(u.name)}</div>
+        <div class="user-info">
+          <div class="user-name">${u.name}</div>
+          <div class="user-role">${u.role}</div>
+        </div>
+      </div>
+      <button class="nav-item" id="logout-btn" style="color:#ef4444">
+        <span class="nav-icon">🚪</span>
+        <span class="nav-label">Cerrar Sesión</span>
+      </button>
+    </div>
+  </aside>`;
+}
+
+function buildTopbar() {
+  const labels = {
+    dashboard:'Dashboard', miembros:'Gestión de Miembros', visitantes:'Visitantes',
+    anuncios:'Anuncios', eventos:'Eventos', asistencia:'Asistencia', finanzas:'Finanzas',
+    ministerios:'Ministerios', reportes:'Reportes', configuracion:'Configuración'
+  };
+  return `<header class="topbar">
+    <div class="topbar-title">${labels[state.tab]||state.tab}</div>
+    <div class="topbar-actions">
+      <div style="position:relative">
+        <button class="icon-btn" id="notif-btn">🔔<span class="badge-dot"></span></button>
+        ${state.notifDropdown ? `<div class="notif-dropdown">
+          <div style="font-size:12px;font-weight:700;margin-bottom:8px;padding:0 4px">Notificaciones</div>
+          <div class="notif-item"><div style="font-weight:600;margin-bottom:2px">Nuevo visitante registrado</div><div style="color:#94a3b8;font-size:11px">Carlos Mendoza — hoy</div></div>
+          <div class="notif-item"><div style="font-weight:600;margin-bottom:2px">Ofrenda procesada</div><div style="color:#10b981;font-weight:600;font-size:11px">+$1,250 — hoy</div></div>
+          <div class="notif-item"><div style="font-weight:600;margin-bottom:2px">Evento próximo</div><div style="color:#94a3b8;font-size:11px">Celebración Familiar — 24 mayo</div></div>
+        </div>` : ''}
+      </div>
+    </div>
+  </header>`;
+}
+
+function buildContent(members, visitors, finance, events) {
+  switch (state.tab) {
+    case 'dashboard':     return tabDashboard(members, visitors, finance, events);
+    case 'miembros':      return tabMembers(members);
+    case 'visitantes':    return tabVisitors(visitors);
+    case 'anuncios':      return tabAnnouncements();
+    case 'eventos':       return tabEvents(events);
+    case 'asistencia':    return tabAttendance();
+    case 'finanzas':      return tabFinance(finance);
+    case 'ministerios':   return tabMinistries();
+    case 'reportes':      return tabReports(members, visitors, finance);
+    case 'configuracion': return tabConfig();
+    default: return '<p>Sección no encontrada</p>';
+  }
+}
+
+// ══════════════ TABS ══════════════
+
+function tabDashboard(members, visitors, finance, events) {
+  const income  = finance.filter(f=>f.tipo==='Ingreso').reduce((s,f)=>s+f.monto,0);
+  const expense = finance.filter(f=>f.tipo==='Egreso').reduce((s,f)=>s+f.monto,0);
+  const bauts   = members.filter(m=>m.estado==='Bautizado'||m.estado==='Bautizada').length;
+  const today   = new Date();
+  const upcoming= events.filter(e=>new Date(e.fecha)>=today).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+  return `
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Membresía Total</div>
+      <div class="stat-value">${members.length}</div>
+      <div class="stat-sub">↑ Crecimiento activo</div>
+      <div class="stat-icon" style="background:#eef2ff;color:#4f46e5">👥</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Bautizados</div>
+      <div class="stat-value">${bauts}</div>
+      <div class="stat-sub" style="color:#2563eb">✓ Comprometidos</div>
+      <div class="stat-icon" style="background:#eff6ff;color:#2563eb">🕊️</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Visitantes</div>
+      <div class="stat-value">${visitors.length}</div>
+      <div class="stat-sub">↑ En seguimiento</div>
+      <div class="stat-icon" style="background:#f0fdf4;color:#16a34a">🌱</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Balance Mensual</div>
+      <div class="stat-value" style="font-size:20px">$${(income-expense).toLocaleString()}</div>
+      <div class="stat-sub">↑ Finanzas estables</div>
+      <div class="stat-icon" style="background:#f0fdf4;color:#16a34a">💵</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <span style="font-size:14px;font-weight:700">Crecimiento & Finanzas (6 meses)</span>
+        <span class="badge badge-gray">2026</span>
+      </div>
+      <div class="chart-container"><canvas id="chart-main"></canvas></div>
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:14px">Próximos Eventos</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${upcoming.slice(0,5).map(ev=>{
+          const d=new Date(ev.fecha), day=d.getDate(), mon=d.toLocaleString('es',{month:'short'});
+          return `<div style="display:flex;align-items:center;gap:10px;padding:8px;background:#f8fafc;border-radius:10px;border:1px solid #f1f5f9">
+            <div style="width:38px;height:38px;background:#eef2ff;color:#4f46e5;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">
+              <span style="font-size:14px;line-height:1">${day}</span>
+              <span style="font-size:9px;text-transform:uppercase">${mon}</span>
+            </div>
+            <div style="min-width:0;flex:1">
+              <div style="font-size:11px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${ev.titulo}</div>
+              <div style="font-size:10px;color:#94a3b8">${ev.hora} — ${ev.lugar}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:14px">Distribución por Ministerio</div>
+      <div class="chart-container" style="height:180px"><canvas id="chart-min"></canvas></div>
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:14px">Actividad Reciente</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${[
+          {icon:'👤',text:'Carlos Mendoza registrado como visitante',time:'Hace 2h',col:'#eef2ff'},
+          {icon:'💰',text:'Ofrenda general procesada: $1,250',time:'Hace 3h',col:'#f0fdf4'},
+          {icon:'📅',text:'Evento Celebración Familiar confirmado',time:'Hace 5h',col:'#eff6ff'},
+          {icon:'✅',text:'Asistencia dominical: 285 presentes',time:'Hace 1d',col:'#fef3c7'},
+          {icon:'👥',text:'Nuevo miembro afiliado al sistema',time:'Hace 2d',col:'#f0fdf4'},
+        ].map(a=>`<div style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;background:#f8fafc;border:1px solid #f1f5f9">
+          <div style="width:30px;height:30px;background:${a.col};border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${a.icon}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:11px;font-weight:600;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${a.text}</div>
+            <div style="font-size:10px;color:#94a3b8">${a.time}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function tabMembers(members) {
+  let filtered = members.filter(m => {
+    const s = state.searchMembers.toLowerCase();
+    return (!s || m.nombre.toLowerCase().includes(s) || m.correo.toLowerCase().includes(s) || (m.telefono && m.telefono.includes(s)))
+        && (state.filterMinisterio === 'Todos' || m.ministerio === state.filterMinisterio)
+        && (state.filterEstado === 'Todos' || m.estado === state.filterEstado);
+  });
+  const ministerios = [...new Set(members.map(m=>m.ministerio))].sort();
+  const estados = ['Bautizado','Bautizada','Afiliado','Afiliada','Visitante','Suspendido'];
+  return `
+  <div class="section-header">
+    <div class="section-title">Miembros (${filtered.length})</div>
+    <button class="action-btn" id="add-member-btn">+ Nuevo Miembro</button>
+  </div>
+  <div class="toolbar">
+    <input class="search-input" id="search-members" placeholder="🔍 Buscar por nombre, correo o teléfono..." value="${state.searchMembers}">
+    <select class="form-select" id="filter-min">
+      <option value="Todos">Todos los ministerios</option>
+      ${ministerios.map(m=>`<option ${state.filterMinisterio===m?'selected':''}>${m}</option>`).join('')}
+    </select>
+    <select class="form-select" id="filter-est">
+      <option value="Todos">Todos los estados</option>
+      ${estados.map(e=>`<option ${state.filterEstado===e?'selected':''}>${e}</option>`).join('')}
+    </select>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Miembro</th><th>Ministerio</th><th>Estado</th><th>Teléfono</th><th>Ingreso</th><th>Acciones</th></tr></thead>
+        <tbody>
+          ${filtered.length ? filtered.map(m=>`<tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:34px;height:34px;border-radius:50%;background:#eef2ff;color:#4f46e5;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${getInitials(m.nombre)}</div>
+                <div>
+                  <div style="font-weight:600;font-size:12px">${m.nombre}</div>
+                  <div style="color:#94a3b8;font-size:11px">${m.correo||'Sin correo'}</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-purple">${m.ministerio}</span></td>
+            <td>${badge(m.estado)}</td>
+            <td style="font-size:11px">${m.telefono||'—'}</td>
+            <td style="font-size:11px;color:#94a3b8">${m.fechaIngreso||'—'}</td>
+            <td>
+              <div style="display:flex;gap:6px">
+                <button class="btn-sm btn-outline" data-view="${m.id}" title="Ver perfil">👁</button>
+                <button class="btn-sm btn-outline" data-edit="${m.id}" title="Editar">✏️</button>
+                <button class="btn-sm btn-outline" style="color:#ef4444;border-color:#fca5a5" data-del="${m.id}" title="Eliminar">🗑</button>
+              </div>
+            </td>
+          </tr>`).join('') : `<tr><td colspan="6" style="text-align:center;padding:30px;color:#94a3b8">No se encontraron miembros</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function tabVisitors(visitors) {
+  return `
+  <div class="section-header">
+    <div class="section-title">Visitantes (${visitors.length})</div>
+    <button class="action-btn" id="add-visitor-btn">+ Nuevo Visitante</button>
+  </div>
+  <div class="grid-2">
+    ${visitors.map(v=>`<div class="visitor-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:38px;height:38px;border-radius:50%;background:#f0fdf4;color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">${getInitials(v.nombre)}</div>
+          <div>
+            <div style="font-weight:700;font-size:13px">${v.nombre}</div>
+            <div style="font-size:11px;color:#94a3b8">${v.telefono}</div>
+          </div>
+        </div>
+        ${badge(v.estado)}
+      </div>
+      <div style="font-size:11px;display:flex;flex-direction:column;gap:4px;padding:10px;background:#f8fafc;border-radius:8px;border:1px solid #f1f5f9;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between"><span style="color:#94a3b8">Invitado por</span><span style="font-weight:600">${v.invitadoPor||'—'}</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:#94a3b8">Primera visita</span><span>${v.fechaVisita||'—'}</span></div>
+        ${v.notas?`<div style="margin-top:4px;color:#64748b;font-size:10px">📝 ${v.notas}</div>`:''}
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn-sm btn-outline" style="flex:1;text-align:center" data-edit-visitor="${v.id}">✏️ Editar</button>
+        <button class="btn-sm action-btn" style="flex:1;text-align:center" data-consolidate="${v.id}">✓ Consolidar</button>
+        <button class="btn-sm btn-outline" style="color:#ef4444;border-color:#fca5a5" data-del-visitor="${v.id}">🗑</button>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function tabAnnouncements() {
+  const anns = DB.get('announcements') || [];
+  return `
+  <div class="section-header">
+    <div class="section-title">Anuncios (${anns.length})</div>
+    <button class="action-btn" id="add-ann-btn">+ Nuevo Anuncio</button>
+  </div>
+  <div class="grid-2">
+    ${anns.map(a=>`<div class="ann-card">
+      <div class="ann-body">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          ${badge(a.prioridad)}
+          <span style="font-size:11px;color:#94a3b8">${a.fechaPublicacion}</span>
+        </div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:8px">${a.titulo}</div>
+        <div style="font-size:12px;color:#64748b;line-height:1.5">${a.contenido}</div>
+      </div>
+      <div class="ann-footer">
+        <span>Canal: <strong>${a.medio}</strong></span>
+        <div style="display:flex;gap:6px">
+          <button class="btn-sm btn-outline" data-edit-ann="${a.id}">✏️</button>
+          <button class="btn-sm btn-outline" style="color:#ef4444;border-color:#fca5a5" data-del-ann="${a.id}">🗑</button>
+        </div>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function tabEvents(events) {
+  const today = new Date();
+  return `
+  <div class="section-header">
+    <div class="section-title">Eventos (${events.length})</div>
+    <button class="action-btn" id="add-event-btn">+ Nuevo Evento</button>
+  </div>
+  <div class="grid-3">
+    ${events.map(ev=>{
+      const isPast = new Date(ev.fecha) < today;
+      return `<div class="event-card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="badge badge-purple">${ev.ministerio}</span>
+          <span style="font-size:12px;font-weight:700;color:#4f46e5">${ev.fecha}</span>
+        </div>
+        <div style="font-size:13px;font-weight:700">${ev.titulo}</div>
+        <div style="font-size:11px;color:#94a3b8;display:flex;flex-direction:column;gap:3px">
+          <div>🕐 ${ev.hora}</div>
+          <div>📍 ${ev.lugar}</div>
+          <div>👥 ${ev.confirmados} confirmados</div>
+        </div>
+        <div style="border-top:1px solid #f1f5f9;padding-top:10px;display:flex;justify-content:space-between;align-items:center">
+          <span class="badge ${isPast?'badge-gray':'badge-green'}">${isPast?'Finalizado':'Próximo'}</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn-sm btn-outline" data-edit-event="${ev.id}">✏️</button>
+            <button class="btn-sm btn-outline" style="color:#ef4444;border-color:#fca5a5" data-del-event="${ev.id}">🗑</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function tabAttendance() {
+  const att = DB.get('attendance') || [];
+  const totalM = att.filter(a=>a.fecha>='2026-05-01').reduce((s,a)=>s+a.presentes,0);
+  return `
+  <div style="display:grid;grid-template-columns:1fr 2fr;gap:16px">
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:16px">Escáner QR</div>
+      <div class="qr-sim">
+        <div class="qr-anim">📱</div>
+        <div style="color:#94a3b8;font-size:12px">Sistema de check-in en vivo</div>
+        <button class="action-btn" id="scan-qr-btn">Simular Escaneo</button>
+      </div>
+      <div style="margin-top:14px;padding:12px;background:#f8fafc;border-radius:10px;border:1px solid #f1f5f9">
+        <div style="font-size:10px;text-transform:uppercase;font-weight:700;color:#94a3b8;margin-bottom:6px">Este Mes</div>
+        <div style="font-size:24px;font-weight:700">${totalM.toLocaleString()}</div>
+        <div style="font-size:11px;color:#94a3b8">asistentes totales</div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div style="font-size:14px;font-weight:700">Historial de Servicios</div>
+        <button class="action-btn action-btn-sm" id="add-att-btn">+ Registrar</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${att.map(a=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#f8fafc;border-radius:10px;border:1px solid #f1f5f9">
+          <div>
+            <div style="font-size:12px;font-weight:700">${a.servicio}</div>
+            <div style="font-size:10px;color:#94a3b8">${a.fecha} — Mesa: ${a.encargado}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:18px;font-weight:700;color:#4f46e5">${a.presentes}</div>
+            <div style="font-size:10px;color:#94a3b8">presentes</div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function tabFinance(finance) {
+  let filtered = finance.filter(f => {
+    const s = state.searchFinance.toLowerCase();
+    return (!s || f.donante.toLowerCase().includes(s) || f.categoria.toLowerCase().includes(s))
+        && (state.filterFinanceTipo === 'Todos' || f.tipo === state.filterFinanceTipo);
+  });
+  const income  = finance.filter(f=>f.tipo==='Ingreso').reduce((s,f)=>s+f.monto,0);
+  const expense = finance.filter(f=>f.tipo==='Egreso').reduce((s,f)=>s+f.monto,0);
+  return `
+  <div class="section-header">
+    <div class="section-title">Finanzas</div>
+    <button class="action-btn" id="add-finance-btn">+ Nuevo Registro</button>
+  </div>
+  <div class="fin-summary">
+    <div class="fin-box income"><div class="fin-box-label">Total Ingresos</div><div class="fin-box-value">$${income.toLocaleString()}</div></div>
+    <div class="fin-box expense"><div class="fin-box-label">Total Egresos</div><div class="fin-box-value">$${expense.toLocaleString()}</div></div>
+    <div class="fin-box balance"><div class="fin-box-label">Balance Neto</div><div class="fin-box-value">$${(income-expense).toLocaleString()}</div></div>
+  </div>
+  <div class="toolbar">
+    <input class="search-input" id="search-finance" placeholder="🔍 Buscar donante o categoría..." value="${state.searchFinance}">
+    <select class="form-select" id="filter-finance-tipo">
+      <option value="Todos">Todos los tipos</option>
+      <option ${state.filterFinanceTipo==='Ingreso'?'selected':''}>Ingreso</option>
+      <option ${state.filterFinanceTipo==='Egreso'?'selected':''}>Egreso</option>
+    </select>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Donante / Concepto</th><th>Categoría</th><th>Fecha</th><th>Método</th><th>Tipo</th><th style="text-align:right">Monto</th><th>Acciones</th></tr></thead>
+        <tbody>
+          ${filtered.map(f=>`<tr>
+            <td style="font-weight:600;font-size:12px">${f.donante}</td>
+            <td style="font-size:11px;color:#64748b">${f.categoria}</td>
+            <td style="font-size:11px;color:#94a3b8">${f.fecha}</td>
+            <td style="font-size:11px">${f.metodo}</td>
+            <td>${badge(f.tipo)}</td>
+            <td style="text-align:right;font-weight:700;color:${f.tipo==='Ingreso'?'#10b981':'#ef4444'}">${f.tipo==='Ingreso'?'+':'-'}$${f.monto.toLocaleString()}</td>
+            <td>
+              <div style="display:flex;gap:6px">
+                <button class="btn-sm btn-outline" data-edit-fin="${f.id}">✏️</button>
+                <button class="btn-sm btn-outline" style="color:#ef4444;border-color:#fca5a5" data-del-fin="${f.id}">🗑</button>
+              </div>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function tabMinistries() {
+  const mins = DB.get('ministries') || [];
+  return `
+  <div class="section-header">
+    <div class="section-title">Ministerios (${mins.length})</div>
+    <button class="action-btn" id="add-min-btn">+ Nuevo Ministerio</button>
+  </div>
+  <div class="grid-3">
+    ${mins.map(m=>`<div class="ministry-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <div style="font-size:14px;font-weight:700">${m.nombre}</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px">Líder: ${m.lider}</div>
+        </div>
+        <span class="badge badge-blue">${m.miembros} miembros</span>
+      </div>
+      <div style="font-size:11px;color:#64748b;margin-bottom:12px">${m.descripcion}</div>
+      <div style="background:#f8fafc;border-radius:9px;padding:10px;border:1px solid #f1f5f9">
+        <div style="font-size:9px;text-transform:uppercase;font-weight:700;color:#94a3b8;letter-spacing:.5px;margin-bottom:4px">Próxima Actividad</div>
+        <div style="font-size:11px;font-weight:600">${m.proxActividad}</div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:6px">
+        <button class="btn-sm btn-outline" style="flex:1" data-edit-min="${m.id}">✏️ Editar</button>
+        <button class="btn-sm btn-outline" style="color:#ef4444;border-color:#fca5a5" data-del-min="${m.id}">🗑</button>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function tabReports(members, visitors, finance) {
+  const income  = finance.filter(f=>f.tipo==='Ingreso').reduce((s,f)=>s+f.monto,0);
+  const expense = finance.filter(f=>f.tipo==='Egreso').reduce((s,f)=>s+f.monto,0);
+  const bauts   = members.filter(m=>m.estado==='Bautizado'||m.estado==='Bautizada').length;
+  const afil    = members.filter(m=>m.estado==='Afiliado'||m.estado==='Afiliada').length;
+  return `
+  <div class="section-header">
+    <div class="section-title">Reportes y Estadísticas</div>
+    <button class="action-btn" onclick="showNotif('Exportando reporte PDF...','info')">📤 Exportar</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div class="report-card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:14px">Estado de Membresía</div>
+      <div class="chart-container" style="height:180px"><canvas id="chart-estado"></canvas></div>
+    </div>
+    <div class="report-card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:14px">Distribución Ministerial</div>
+      <div class="chart-container" style="height:180px"><canvas id="chart-dist"></canvas></div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+    ${[
+      {label:'Total Miembros',val:members.length,icon:'👥',col:'#4f46e5'},
+      {label:'Bautizados',val:bauts,icon:'🕊️',col:'#2563eb'},
+      {label:'Afiliados',val:afil,icon:'🌱',col:'#16a34a'},
+      {label:'Visitantes',val:visitors.length,icon:'👋',col:'#d97706'},
+    ].map(r=>`<div class="card" style="text-align:center;padding:16px">
+      <div style="font-size:24px;margin-bottom:6px">${r.icon}</div>
+      <div style="font-size:22px;font-weight:700;color:${r.col}">${r.val}</div>
+      <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:4px">${r.label}</div>
+    </div>`).join('')}
+  </div>
+  <div class="report-card">
+    <div style="font-size:14px;font-weight:700;margin-bottom:14px">Resumen Financiero</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      ${[
+        {label:'Ingresos Totales',val:'$'+income.toLocaleString(),col:'#10b981'},
+        {label:'Egresos Totales',val:'$'+expense.toLocaleString(),col:'#ef4444'},
+        {label:'Balance Neto',val:'$'+(income-expense).toLocaleString(),col:'#4f46e5'},
+      ].map(r=>`<div style="padding:14px;background:#f8fafc;border-radius:10px;border:1px solid #f1f5f9;text-align:center">
+        <div style="font-size:18px;font-weight:700;color:${r.col}">${r.val}</div>
+        <div style="font-size:10px;color:#94a3b8;margin-top:4px;text-transform:uppercase;font-weight:600">${r.label}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function tabConfig() {
+  const cfg = DB.get('config') || {};
+  return `
+  <div class="section-header"><div class="section-title">Configuración del Sistema</div></div>
+  <div class="config-section">
+    <div style="font-size:13px;font-weight:700;margin-bottom:14px">🏛 Información de la Iglesia</div>
+    <div class="form-group"><label class="form-label">Nombre de la Iglesia</label><input class="form-input" id="cfg-name" value="${cfg.churchName||''}"></div>
+    <div class="form-group"><label class="form-label">Pastor Principal</label><input class="form-input" id="cfg-pastor" value="${cfg.pastor||''}"></div>
+    <div class="form-group"><label class="form-label">Dirección</label><input class="form-input" id="cfg-address" value="${cfg.address||''}"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" id="cfg-phone" value="${cfg.phone||''}"></div>
+      <div class="form-group"><label class="form-label">Correo</label><input class="form-input" id="cfg-email" value="${cfg.email||''}"></div>
+    </div>
+    <button class="action-btn" id="save-cfg-btn">💾 Guardar Cambios</button>
+  </div>
+  <div class="config-section">
+    <div style="font-size:13px;font-weight:700;margin-bottom:14px">🎨 Preferencias</div>
+    <div class="config-row">
+      <div><div style="font-weight:600;font-size:13px">Modo Oscuro</div><div style="font-size:11px;color:#94a3b8">Tema visual del sistema</div></div>
+      <button class="toggle ${state.darkMode?'on':''}" id="toggle-dark"></button>
+    </div>
+    <div class="config-row">
+      <div><div style="font-weight:600;font-size:13px">Notificaciones</div><div style="font-size:11px;color:#94a3b8">Alertas del sistema</div></div>
+      <button class="toggle on"></button>
+    </div>
+  </div>
+  <div class="config-section">
+    <div style="font-size:13px;font-weight:700;margin-bottom:14px">👤 Gestión de Usuarios</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Estado</th></tr></thead>
+        <tbody>
+          ${(DB.get('users')||[]).map(u=>`<tr>
+            <td style="font-weight:600">${u.username}</td>
+            <td>${u.name}</td>
+            <td><span class="badge badge-purple">${u.role}</span></td>
+            <td>${badge(u.active?'Activo':'Inactivo')}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="config-section">
+    <div style="font-size:13px;font-weight:700;margin-bottom:14px">⚠️ Gestión de Datos</div>
+    <button class="action-btn action-btn-amber" style="margin-right:8px" id="backup-btn">📦 Crear Backup</button>
+    <button class="action-btn action-btn-danger" id="reset-btn">🔄 Restablecer Datos</button>
+  </div>`;
+}
+
+// ══════════════ MODALS ══════════════
+
+function buildModal() {
+  const { type, data } = state.modal;
+  let title = '', body = '';
+  const MIN_LIST = ['Alabanza','Niños','Caballeros','Jóvenes','Damas','Acción Social','Liderazgo','Misiones'];
+  const EST_LIST = ['Bautizado','Bautizada','Afiliado','Afiliada','Visitante','Suspendido'];
+  const EV_MIN   = ['General','Alabanza','Jóvenes','Niños','Damas','Caballeros','Damas/Caballeros','Liderazgo','Misiones','Acción Social','Finanzas'];
+  const FIN_CAT  = ['Diezmo','Ofrenda General','Ofrenda Especial','Servicios Públicos','Material Didáctico','Transporte','Infraestructura','Salarios','Otros'];
+  const sel = (opts, val) => opts.map(o=>`<option ${val===o?'selected':''}>${o}</option>`).join('');
+
+  if (type === 'member-view') {
+    const m = data;
+    title = 'Perfil del Miembro';
+    body = `<div class="profile-header">
+      <div class="avatar-lg">${getInitials(m.nombre)}</div>
+      <div><div style="font-size:16px;font-weight:700">${m.nombre}</div>
+        <div style="font-size:12px;color:#94a3b8;margin-top:2px">${m.correo||'Sin correo'}</div>
+        <div style="margin-top:6px">${badge(m.estado)}</div></div>
+    </div>
+    <div class="detail-row"><span class="detail-label">Edad</span><span>${m.edad||'—'} años</span></div>
+    <div class="detail-row"><span class="detail-label">Teléfono</span><span>${m.telefono||'—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Dirección</span><span style="text-align:right;max-width:280px">${m.direccion||'—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Ministerio</span><span class="badge badge-purple">${m.ministerio}</span></div>
+    <div class="detail-row"><span class="detail-label">Fecha de Ingreso</span><span>${m.fechaIngreso||'—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Género</span><span>${m.genero==='M'?'Masculino':'Femenino'}</span></div>
+    ${m.notas?`<div class="detail-row"><span class="detail-label">Notas</span><span style="text-align:right;max-width:260px;color:#64748b">${m.notas}</span></div>`:''}`;
+
+  } else if (type === 'member-form') {
+    const m = data || {};
+    title = m.id ? 'Editar Miembro' : 'Nuevo Miembro';
+    body = `<div class="two-col">
+      <div class="form-group span-2"><label class="form-label">Nombre Completo *</label><input class="form-input" id="f-nombre" value="${m.nombre||''}"></div>
+      <div class="form-group"><label class="form-label">Correo Electrónico</label><input class="form-input" id="f-correo" type="email" value="${m.correo||''}"></div>
+      <div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" id="f-tel" value="${m.telefono||''}"></div>
+      <div class="form-group"><label class="form-label">Edad</label><input class="form-input" id="f-edad" type="number" value="${m.edad||''}"></div>
+      <div class="form-group"><label class="form-label">Género</label><select class="form-input form-select" id="f-genero"><option value="M" ${m.genero==='M'?'selected':''}>Masculino</option><option value="F" ${m.genero==='F'?'selected':''}>Femenino</option></select></div>
+      <div class="form-group span-2"><label class="form-label">Dirección</label><input class="form-input" id="f-dir" value="${m.direccion||''}"></div>
+      <div class="form-group"><label class="form-label">Ministerio</label><select class="form-input form-select" id="f-min">${sel(MIN_LIST,m.ministerio)}</select></div>
+      <div class="form-group"><label class="form-label">Estado</label><select class="form-input form-select" id="f-est">${sel(EST_LIST,m.estado)}</select></div>
+      <div class="form-group"><label class="form-label">Fecha de Ingreso</label><input class="form-input" id="f-fecha" type="date" value="${m.fechaIngreso||new Date().toISOString().split('T')[0]}"></div>
+      <div class="form-group span-2"><label class="form-label">Notas</label><input class="form-input" id="f-notas" value="${m.notas||''}"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn-primary" id="save-member-btn" style="flex:1">${m.id?'Actualizar':'Guardar'} Miembro</button>
+      <button class="btn-sm btn-outline" id="cancel-modal-btn" style="padding:10px 20px">Cancelar</button>
+    </div>`;
+
+  } else if (type === 'visitor-form') {
+    const v = data || {};
+    const VIS_EST = ['Pendiente','En Proceso','Consolidado','Consolidada'];
+    title = v.id ? 'Editar Visitante' : 'Nuevo Visitante';
+    body = `<div class="two-col">
+      <div class="form-group span-2"><label class="form-label">Nombre Completo *</label><input class="form-input" id="fv-nombre" value="${v.nombre||''}"></div>
+      <div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" id="fv-tel" value="${v.telefono||''}"></div>
+      <div class="form-group"><label class="form-label">Correo</label><input class="form-input" id="fv-correo" value="${v.correo||''}"></div>
+      <div class="form-group"><label class="form-label">Invitado Por</label><input class="form-input" id="fv-invBy" value="${v.invitadoPor||''}"></div>
+      <div class="form-group"><label class="form-label">Fecha de Visita</label><input class="form-input" id="fv-fecha" type="date" value="${v.fechaVisita||new Date().toISOString().split('T')[0]}"></div>
+      <div class="form-group span-2"><label class="form-label">Estado</label><select class="form-input form-select" id="fv-est">${sel(VIS_EST,v.estado)}</select></div>
+      <div class="form-group span-2"><label class="form-label">Notas</label><input class="form-input" id="fv-notas" value="${v.notas||''}"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn-primary" id="save-visitor-btn" style="flex:1">${v.id?'Actualizar':'Guardar'}</button>
+      <button class="btn-sm btn-outline" id="cancel-modal-btn" style="padding:10px 20px">Cancelar</button>
+    </div>`;
+
+  } else if (type === 'announcement-form') {
+    const a = data || {};
+    const CANALES = ['General','Jóvenes','Niños','Damas','Caballeros','Liderazgo','Alabanza','Acción Social'];
+    title = a.id ? 'Editar Anuncio' : 'Nuevo Anuncio';
+    body = `<div class="form-group"><label class="form-label">Título *</label><input class="form-input" id="fa-titulo" value="${a.titulo||''}"></div>
+    <div class="form-group"><label class="form-label">Contenido</label><textarea class="form-input" id="fa-contenido" rows="3">${a.contenido||''}</textarea></div>
+    <div class="two-col">
+      <div class="form-group"><label class="form-label">Prioridad</label><select class="form-input form-select" id="fa-prio">${sel(['Alta','Media','Baja'],a.prioridad)}</select></div>
+      <div class="form-group"><label class="form-label">Canal</label><select class="form-input form-select" id="fa-medio">${sel(CANALES,a.medio)}</select></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn-primary" id="save-ann-btn" style="flex:1">${a.id?'Actualizar':'Publicar'}</button>
+      <button class="btn-sm btn-outline" id="cancel-modal-btn" style="padding:10px 20px">Cancelar</button>
+    </div>`;
+
+  } else if (type === 'event-form') {
+    const ev = data || {};
+    title = ev.id ? 'Editar Evento' : 'Nuevo Evento';
+    body = `<div class="two-col">
+      <div class="form-group span-2"><label class="form-label">Título *</label><input class="form-input" id="fe-titulo" value="${ev.titulo||''}"></div>
+      <div class="form-group"><label class="form-label">Fecha</label><input class="form-input" id="fe-fecha" type="date" value="${ev.fecha||''}"></div>
+      <div class="form-group"><label class="form-label">Hora</label><input class="form-input" id="fe-hora" value="${ev.hora||''}"></div>
+      <div class="form-group span-2"><label class="form-label">Lugar</label><input class="form-input" id="fe-lugar" value="${ev.lugar||''}"></div>
+      <div class="form-group"><label class="form-label">Ministerio</label><select class="form-input form-select" id="fe-min">${sel(EV_MIN,ev.ministerio)}</select></div>
+      <div class="form-group"><label class="form-label">Confirmados</label><input class="form-input" id="fe-conf" type="number" value="${ev.confirmados||0}"></div>
+      <div class="form-group span-2"><label class="form-label">Descripción</label><input class="form-input" id="fe-desc" value="${ev.descripcion||''}"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn-primary" id="save-event-btn" style="flex:1">${ev.id?'Actualizar':'Crear Evento'}</button>
+      <button class="btn-sm btn-outline" id="cancel-modal-btn" style="padding:10px 20px">Cancelar</button>
+    </div>`;
+
+  } else if (type === 'finance-form') {
+    const f = data || {};
+    const METODOS = ['Efectivo','Transferencia','Cheque','Tarjeta','Débito Automático'];
+    title = f.id ? 'Editar Registro Financiero' : 'Nuevo Registro Financiero';
+    body = `<div class="two-col">
+      <div class="form-group span-2"><label class="form-label">Donante / Concepto *</label><input class="form-input" id="ff-donante" value="${f.donante||''}"></div>
+      <div class="form-group"><label class="form-label">Categoría</label><select class="form-input form-select" id="ff-cat">${sel(FIN_CAT,f.categoria)}</select></div>
+      <div class="form-group"><label class="form-label">Tipo</label><select class="form-input form-select" id="ff-tipo"><option ${f.tipo==='Ingreso'?'selected':''}>Ingreso</option><option ${f.tipo==='Egreso'?'selected':''}>Egreso</option></select></div>
+      <div class="form-group"><label class="form-label">Monto *</label><input class="form-input" id="ff-monto" type="number" value="${f.monto||''}"></div>
+      <div class="form-group"><label class="form-label">Fecha</label><input class="form-input" id="ff-fecha" type="date" value="${f.fecha||new Date().toISOString().split('T')[0]}"></div>
+      <div class="form-group span-2"><label class="form-label">Método de Pago</label><select class="form-input form-select" id="ff-met">${sel(METODOS,f.metodo)}</select></div>
+      <div class="form-group span-2"><label class="form-label">Notas</label><input class="form-input" id="ff-notas" value="${f.notas||''}"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn-primary" id="save-fin-btn" style="flex:1">${f.id?'Actualizar':'Guardar'}</button>
+      <button class="btn-sm btn-outline" id="cancel-modal-btn" style="padding:10px 20px">Cancelar</button>
+    </div>`;
+
+  } else if (type === 'ministry-form') {
+    const m = data || {};
+    title = m.id ? 'Editar Ministerio' : 'Nuevo Ministerio';
+    body = `<div class="form-group"><label class="form-label">Nombre del Ministerio *</label><input class="form-input" id="fm-nombre" value="${m.nombre||''}"></div>
+    <div class="form-group"><label class="form-label">Líder</label><input class="form-input" id="fm-lider" value="${m.lider||''}"></div>
+    <div class="form-group"><label class="form-label">Número de Miembros</label><input class="form-input" id="fm-miembros" type="number" value="${m.miembros||0}"></div>
+    <div class="form-group"><label class="form-label">Descripción</label><textarea class="form-input" id="fm-desc" rows="2">${m.descripcion||''}</textarea></div>
+    <div class="form-group"><label class="form-label">Próxima Actividad</label><input class="form-input" id="fm-prox" value="${m.proxActividad||''}"></div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn-primary" id="save-min-btn" style="flex:1">${m.id?'Actualizar':'Crear'}</button>
+      <button class="btn-sm btn-outline" id="cancel-modal-btn" style="padding:10px 20px">Cancelar</button>
+    </div>`;
+
+  } else if (type === 'attendance-form') {
+    const SERVICIOS = ['Dominical Matutino','Dominical Vespertino','Culto de Oración','Servicio Especial','Vigilias','Célula','Actividad Especial'];
+    title = 'Registrar Asistencia';
+    body = `<div class="two-col">
+      <div class="form-group span-2"><label class="form-label">Tipo de Servicio</label><select class="form-input form-select" id="fat-tipo">${SERVICIOS.map(s=>`<option>${s}</option>`).join('')}</select></div>
+      <div class="form-group"><label class="form-label">Fecha</label><input class="form-input" id="fat-fecha" type="date" value="${new Date().toISOString().split('T')[0]}"></div>
+      <div class="form-group"><label class="form-label">Presentes</label><input class="form-input" id="fat-pres" type="number" value="0"></div>
+      <div class="form-group span-2"><label class="form-label">Encargado / Mesa</label><input class="form-input" id="fat-enc" value="Mesa Alfa"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn-primary" id="save-att-btn" style="flex:1">Registrar</button>
+      <button class="btn-sm btn-outline" id="cancel-modal-btn" style="padding:10px 20px">Cancelar</button>
+    </div>`;
+  }
+
+  return `<div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">${title}</div>
+        <button class="close-btn" id="cancel-modal-btn">✕</button>
+      </div>
+      ${body}
+    </div>
+  </div>`;
+}
+
+// ══════════════ CHARTS ══════════════
+
+function renderCharts() {
+  const members = DB.get('members') || [];
+  if (state.tab === 'dashboard') { renderMainChart(); renderMinChart(members); }
+  else if (state.tab === 'reportes') { renderEstadoChart(members); renderDistChart(members); }
+}
+
+function mkChart(id, key, config) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  if (state.charts[key]) { state.charts[key].destroy(); }
+  state.charts[key] = new Chart(ctx, config);
+}
+
+function renderMainChart() {
+  const dk = state.darkMode, tc = dk?'#94a3b8':'#64748b', gc = dk?'rgba(255,255,255,.04)':'rgba(0,0,0,.04)';
+  mkChart('chart-main','main',{type:'line',data:{
+    labels:['Dic','Ene','Feb','Mar','Abr','May'],
+    datasets:[
+      {label:'Membresía',data:[400,420,435,450,465,490],borderColor:'#4f46e5',backgroundColor:'rgba(79,70,229,.08)',tension:.4,borderWidth:2,fill:true,pointRadius:3},
+      {label:'Asistencia',data:[310,340,320,360,380,410],borderColor:'#10b981',borderDash:[5,5],tension:.4,borderWidth:2,pointRadius:3}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11},color:tc,boxWidth:12}}},
+    scales:{y:{grid:{color:gc},ticks:{color:tc,font:{size:10}}},x:{grid:{color:gc},ticks:{color:tc,font:{size:10}}}}}});
+}
+
+function renderMinChart(members) {
+  const counts = {}; members.forEach(m=>{counts[m.ministerio]=(counts[m.ministerio]||0)+1});
+  const tc = state.darkMode?'#94a3b8':'#64748b';
+  mkChart('chart-min','min',{type:'doughnut',data:{labels:Object.keys(counts),datasets:[{data:Object.values(counts),backgroundColor:['#4f46e5','#10b981','#f59e0b','#3b82f6','#ec4899','#8b5cf6','#06b6d4','#ef4444'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:10},color:tc,boxWidth:10}}}}});
+}
+
+function renderEstadoChart(members) {
+  const counts = {};
+  members.forEach(m=>{
+    const k = (m.estado==='Bautizado'||m.estado==='Bautizada')?'Bautizados':(m.estado==='Afiliado'||m.estado==='Afiliada')?'Afiliados':'Otros';
+    counts[k]=(counts[k]||0)+1;
+  });
+  const tc = state.darkMode?'#94a3b8':'#64748b';
+  mkChart('chart-estado','estado',{type:'pie',data:{labels:Object.keys(counts),datasets:[{data:Object.values(counts),backgroundColor:['#4f46e5','#10b981','#f59e0b'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:10},color:tc,boxWidth:10}}}}});
+}
+
+function renderDistChart(members) {
+  const counts = {}; members.forEach(m=>{counts[m.ministerio]=(counts[m.ministerio]||0)+1});
+  const tc = state.darkMode?'#94a3b8':'#64748b', gc = state.darkMode?'rgba(255,255,255,.04)':'rgba(0,0,0,.04)';
+  mkChart('chart-dist','dist',{type:'bar',data:{labels:Object.keys(counts),datasets:[{data:Object.values(counts),backgroundColor:'#4f46e5',borderRadius:6,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:gc},ticks:{color:tc,font:{size:10}}},x:{grid:{display:false},ticks:{color:tc,font:{size:10}}}}}});
+}
+
+// ══════════════ EVENTOS ══════════════
+
+function bindAll() {
+  // sidebar
+  const sbBtn = document.getElementById('sb-toggle');
+  if (sbBtn) sbBtn.onclick = () => { state.sidebarCollapsed = !state.sidebarCollapsed; render(); };
+
+  // dark mode
+  const dkBtn = document.getElementById('dark-toggle');
+  if (dkBtn) dkBtn.onclick = () => { state.darkMode = !state.darkMode; const c=DB.get('config')||{}; c.darkMode=state.darkMode; DB.set('config',c); render(); };
+
+  // logout
+  const logBtn = document.getElementById('logout-btn');
+  if (logBtn) logBtn.onclick = () => { state.loggedIn=false; state.currentUser=null; state.loginUser=''; state.loginPass=''; render(); };
+
+  // nav tabs
+  document.querySelectorAll('[data-tab]').forEach(el => {
+    el.onclick = () => { state.tab=el.dataset.tab; state.modal=null; state.notifDropdown=false; render(); };
+  });
+
+  // notif dropdown
+  const nBtn = document.getElementById('notif-btn');
+  if (nBtn) nBtn.onclick = e => { e.stopPropagation(); state.notifDropdown=!state.notifDropdown; render(); };
+  document.onclick = () => { if (state.notifDropdown) { state.notifDropdown=false; render(); } };
+
+  // ── ADD buttons ──
+  const btnMap = {
+    'add-member-btn':  () => openModal('member-form', null),
+    'add-visitor-btn': () => openModal('visitor-form', null),
+    'add-ann-btn':     () => openModal('announcement-form', null),
+    'add-event-btn':   () => openModal('event-form', null),
+    'add-finance-btn': () => openModal('finance-form', null),
+    'add-min-btn':     () => openModal('ministry-form', null),
+    'add-att-btn':     () => openModal('attendance-form', null),
+    'scan-qr-btn':     () => showNotif('✅ QR Escaneado: Josué David Flores — Dominical Matutino', 'success'),
+    'backup-btn':      () => { const blob=new Blob([JSON.stringify({members:DB.get('members'),visitors:DB.get('visitors'),finance:DB.get('finance'),events:DB.get('events'),announcements:DB.get('announcements'),ministries:DB.get('ministries'),attendance:DB.get('attendance')},null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='icpv_backup_'+new Date().toISOString().split('T')[0]+'.json'; a.click(); showNotif('Backup descargado ✓','success'); },
+    'save-cfg-btn':    () => { const c=DB.get('config')||{}; c.churchName=document.getElementById('cfg-name').value; c.pastor=document.getElementById('cfg-pastor').value; c.address=document.getElementById('cfg-address').value; c.phone=document.getElementById('cfg-phone').value; c.email=document.getElementById('cfg-email').value; DB.set('config',c); showNotif('Configuración guardada ✓','success'); },
+    'toggle-dark':     () => { state.darkMode=!state.darkMode; const c=DB.get('config')||{}; c.darkMode=state.darkMode; DB.set('config',c); render(); },
+    'reset-btn':       () => { if(confirm('¿Restablecer todos los datos? Esta acción no se puede deshacer.')) { DB.del('init'); DB.init(); showNotif('Sistema restablecido','info'); render(); } },
+  };
+  Object.entries(btnMap).forEach(([id,fn])=>{ const el=document.getElementById(id); if(el) el.onclick=fn; });
+
+  // ── MEMBER ACTIONS ──
+  document.querySelectorAll('[data-view]').forEach(el => {
+    el.onclick = () => { const m=(DB.get('members')||[]).find(x=>x.id==el.dataset.view); if(m) openModal('member-view',m); };
+  });
+  document.querySelectorAll('[data-edit]').forEach(el => {
+    el.onclick = () => { const m=(DB.get('members')||[]).find(x=>x.id==el.dataset.edit); if(m) openModal('member-form',m); };
+  });
+  document.querySelectorAll('[data-del]').forEach(el => {
+    el.onclick = () => { if(confirm('¿Eliminar este miembro?')) { DB.set('members',(DB.get('members')||[]).filter(x=>x.id!=el.dataset.del)); showNotif('Miembro eliminado','info'); render(); } };
+  });
+
+  // ── VISITOR ACTIONS ──
+  document.querySelectorAll('[data-edit-visitor]').forEach(el => {
+    el.onclick = () => { const v=(DB.get('visitors')||[]).find(x=>x.id==el.dataset.editVisitor); if(v) openModal('visitor-form',v); };
+  });
+  document.querySelectorAll('[data-consolidate]').forEach(el => {
+    el.onclick = () => { const arr=DB.get('visitors')||[]; const v=arr.find(x=>x.id==el.dataset.consolidate); if(v){v.estado='Consolidado';DB.set('visitors',arr);showNotif('Visitante consolidado ✓','success');render();} };
+  });
+  document.querySelectorAll('[data-del-visitor]').forEach(el => {
+    el.onclick = () => { if(confirm('¿Eliminar este visitante?')) { DB.set('visitors',(DB.get('visitors')||[]).filter(x=>x.id!=el.dataset.delVisitor)); showNotif('Visitante eliminado','info'); render(); } };
+  });
+
+  // ── ANNOUNCEMENT ACTIONS ──
+  document.querySelectorAll('[data-edit-ann]').forEach(el => {
+    el.onclick = () => { const a=(DB.get('announcements')||[]).find(x=>x.id==el.dataset.editAnn); if(a) openModal('announcement-form',a); };
+  });
+  document.querySelectorAll('[data-del-ann]').forEach(el => {
+    el.onclick = () => { if(confirm('¿Eliminar este anuncio?')) { DB.set('announcements',(DB.get('announcements')||[]).filter(x=>x.id!=el.dataset.delAnn)); showNotif('Anuncio eliminado','info'); render(); } };
+  });
+
+  // ── EVENT ACTIONS ──
+  document.querySelectorAll('[data-edit-event]').forEach(el => {
+    el.onclick = () => { const ev=(DB.get('events')||[]).find(x=>x.id==el.dataset.editEvent); if(ev) openModal('event-form',ev); };
+  });
+  document.querySelectorAll('[data-del-event]').forEach(el => {
+    el.onclick = () => { if(confirm('¿Eliminar este evento?')) { DB.set('events',(DB.get('events')||[]).filter(x=>x.id!=el.dataset.delEvent)); showNotif('Evento eliminado','info'); render(); } };
+  });
+
+  // ── FINANCE ACTIONS ──
+  const sf = document.getElementById('search-finance');
+  if (sf) sf.oninput = e => { state.searchFinance=e.target.value; render(); };
+  const fft = document.getElementById('filter-finance-tipo');
+  if (fft) fft.onchange = e => { state.filterFinanceTipo=e.target.value; render(); };
+  document.querySelectorAll('[data-edit-fin]').forEach(el => {
+    el.onclick = () => { const f=(DB.get('finance')||[]).find(x=>x.id==el.dataset.editFin); if(f) openModal('finance-form',f); };
+  });
+  document.querySelectorAll('[data-del-fin]').forEach(el => {
+    el.onclick = () => { if(confirm('¿Eliminar este registro?')) { DB.set('finance',(DB.get('finance')||[]).filter(x=>x.id!=el.dataset.delFin)); showNotif('Registro eliminado','info'); render(); } };
+  });
+
+  // ── MINISTRY ACTIONS ──
+  document.querySelectorAll('[data-edit-min]').forEach(el => {
+    el.onclick = () => { const m=(DB.get('ministries')||[]).find(x=>x.id==el.dataset.editMin); if(m) openModal('ministry-form',m); };
+  });
+  document.querySelectorAll('[data-del-min]').forEach(el => {
+    el.onclick = () => { if(confirm('¿Eliminar este ministerio?')) { DB.set('ministries',(DB.get('ministries')||[]).filter(x=>x.id!=el.dataset.delMin)); showNotif('Ministerio eliminado','info'); render(); } };
+  });
+
+  // ── MEMBER SEARCH / FILTER ──
+  const sm = document.getElementById('search-members');
+  if (sm) sm.oninput = e => { state.searchMembers=e.target.value; render(); };
+  const fmin = document.getElementById('filter-min');
+  if (fmin) fmin.onchange = e => { state.filterMinisterio=e.target.value; render(); };
+  const fest = document.getElementById('filter-est');
+  if (fest) fest.onchange = e => { state.filterEstado=e.target.value; render(); };
+
+  bindModal();
+}
+
+function openModal(type, data) { state.modal={type,data}; render(); }
+function closeModal() { state.modal=null; render(); }
+
+function bindModal() {
+  const ov = document.getElementById('modal-overlay');
+  if (ov) ov.onclick = e => { if(e.target===ov) closeModal(); };
+  document.querySelectorAll('#cancel-modal-btn').forEach(b => b.onclick = closeModal);
+
+  // Save member
+  const smBtn = document.getElementById('save-member-btn');
+  if (smBtn) smBtn.onclick = () => {
+    const nombre = document.getElementById('f-nombre').value.trim();
+    if (!nombre) { showNotif('El nombre es requerido','error'); return; }
+    const arr = DB.get('members') || [];
+    const isEdit = state.modal.data?.id;
+    const obj = { id:isEdit||nextId(arr), nombre, correo:document.getElementById('f-correo').value, telefono:document.getElementById('f-tel').value, edad:parseInt(document.getElementById('f-edad').value)||0, genero:document.getElementById('f-genero').value, direccion:document.getElementById('f-dir').value, ministerio:document.getElementById('f-min').value, estado:document.getElementById('f-est').value, fechaIngreso:document.getElementById('f-fecha').value, notas:document.getElementById('f-notas').value };
+    if (isEdit) { DB.set('members',arr.map(m=>m.id===isEdit?obj:m)); showNotif('Miembro actualizado ✓','success'); }
+    else { arr.push(obj); DB.set('members',arr); showNotif('Miembro agregado ✓','success'); }
+    closeModal(); render();
+  };
+
+  // Save visitor
+  const svBtn = document.getElementById('save-visitor-btn');
+  if (svBtn) svBtn.onclick = () => {
+    const nombre = document.getElementById('fv-nombre').value.trim();
+    if (!nombre) { showNotif('El nombre es requerido','error'); return; }
+    const arr = DB.get('visitors') || [];
+    const isEdit = state.modal.data?.id;
+    const obj = { id:isEdit||nextId(arr), nombre, telefono:document.getElementById('fv-tel').value, correo:document.getElementById('fv-correo').value, invitadoPor:document.getElementById('fv-invBy').value, fechaVisita:document.getElementById('fv-fecha').value, estado:document.getElementById('fv-est').value, notas:document.getElementById('fv-notas').value };
+    if (isEdit) { DB.set('visitors',arr.map(v=>v.id===isEdit?obj:v)); showNotif('Visitante actualizado ✓','success'); }
+    else { arr.push(obj); DB.set('visitors',arr); showNotif('Visitante registrado ✓','success'); }
+    closeModal(); render();
+  };
+
+  // Save announcement
+  const saBtn = document.getElementById('save-ann-btn');
+  if (saBtn) saBtn.onclick = () => {
+    const titulo = document.getElementById('fa-titulo').value.trim();
+    if (!titulo) { showNotif('El título es requerido','error'); return; }
+    const arr = DB.get('announcements') || [];
+    const isEdit = state.modal.data?.id;
+    const obj = { id:isEdit||nextId(arr), titulo, contenido:document.getElementById('fa-contenido').value, prioridad:document.getElementById('fa-prio').value, medio:document.getElementById('fa-medio').value, fechaPublicacion:new Date().toISOString().split('T')[0], activo:true };
+    if (isEdit) { DB.set('announcements',arr.map(a=>a.id===isEdit?obj:a)); showNotif('Anuncio actualizado ✓','success'); }
+    else { arr.push(obj); DB.set('announcements',arr); showNotif('Anuncio publicado ✓','success'); }
+    closeModal(); render();
+  };
+
+  // Save event
+  const seBtn = document.getElementById('save-event-btn');
+  if (seBtn) seBtn.onclick = () => {
+    const titulo = document.getElementById('fe-titulo').value.trim();
+    if (!titulo) { showNotif('El título es requerido','error'); return; }
+    const arr = DB.get('events') || [];
+    const isEdit = state.modal.data?.id;
+    const obj = { id:isEdit||nextId(arr), titulo, fecha:document.getElementById('fe-fecha').value, hora:document.getElementById('fe-hora').value, lugar:document.getElementById('fe-lugar').value, ministerio:document.getElementById('fe-min').value, confirmados:parseInt(document.getElementById('fe-conf').value)||0, descripcion:document.getElementById('fe-desc').value };
+    if (isEdit) { DB.set('events',arr.map(e=>e.id===isEdit?obj:e)); showNotif('Evento actualizado ✓','success'); }
+    else { arr.push(obj); DB.set('events',arr); showNotif('Evento creado ✓','success'); }
+    closeModal(); render();
+  };
+
+  // Save finance
+  const sfBtn = document.getElementById('save-fin-btn');
+  if (sfBtn) sfBtn.onclick = () => {
+    const donante = document.getElementById('ff-donante').value.trim();
+    const monto   = parseFloat(document.getElementById('ff-monto').value);
+    if (!donante || !monto) { showNotif('Donante y monto son requeridos','error'); return; }
+    const arr = DB.get('finance') || [];
+    const isEdit = state.modal.data?.id;
+    const obj = { id:isEdit||nextId(arr), donante, categoria:document.getElementById('ff-cat').value, tipo:document.getElementById('ff-tipo').value, monto, fecha:document.getElementById('ff-fecha').value, metodo:document.getElementById('ff-met').value, notas:document.getElementById('ff-notas').value };
+    if (isEdit) { DB.set('finance',arr.map(f=>f.id===isEdit?obj:f)); showNotif('Registro actualizado ✓','success'); }
+    else { arr.push(obj); DB.set('finance',arr); showNotif('Registro guardado ✓','success'); }
+    closeModal(); render();
+  };
+
+  // Save ministry
+  const sminBtn = document.getElementById('save-min-btn');
+  if (sminBtn) sminBtn.onclick = () => {
+    const nombre = document.getElementById('fm-nombre').value.trim();
+    if (!nombre) { showNotif('El nombre es requerido','error'); return; }
+    const arr = DB.get('ministries') || [];
+    const isEdit = state.modal.data?.id;
+    const obj = { id:isEdit||nextId(arr), nombre, lider:document.getElementById('fm-lider').value, miembros:parseInt(document.getElementById('fm-miembros').value)||0, descripcion:document.getElementById('fm-desc').value, proxActividad:document.getElementById('fm-prox').value, activo:true };
+    if (isEdit) { DB.set('ministries',arr.map(m=>m.id===isEdit?obj:m)); showNotif('Ministerio actualizado ✓','success'); }
+    else { arr.push(obj); DB.set('ministries',arr); showNotif('Ministerio creado ✓','success'); }
+    closeModal(); render();
+  };
+
+  // Save attendance
+  const sattBtn = document.getElementById('save-att-btn');
+  if (sattBtn) sattBtn.onclick = () => {
+    const arr = DB.get('attendance') || [];
+    const obj = { id:nextId(arr), servicio:document.getElementById('fat-tipo').value, fecha:document.getElementById('fat-fecha').value, presentes:parseInt(document.getElementById('fat-pres').value)||0, encargado:document.getElementById('fat-enc').value };
+    arr.unshift(obj); DB.set('attendance',arr); showNotif('Asistencia registrada ✓','success');
+    closeModal(); render();
+  };
+}
+
+// ══════════════ ARRANQUE ══════════════
+DB.init();
+state.darkMode = DB.get('config')?.darkMode || false;
+render();
+</script>
+</body>
+</html>
